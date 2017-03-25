@@ -1,18 +1,17 @@
-#Progetto Robotica aa 2016/2017
+# Progetto Robotica aa 2016/2017
 
 This is just a placeholder for the webpage of the project.
 The content will be updated once the work is started.
-[Image](https://static.artfire.com/uploads/products/2015/11/14/e1/12665907/large/_5defb80d_361998.jpg)
-``
-`You can use the [editor on GitHub](https://github.com/magicleon94/robotics2017/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+![Image](https://static.artfire.com/uploads/products/2015/11/14/e1/12665907/large/_5defb80d_361998.jpg)
+
+You can use the [editor on GitHub](https://github.com/magicleon94/robotics2017/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
 ### Markdown
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-
+```
 Syntax highlighted code block
 
 # Header 1
@@ -29,7 +28,6 @@ Syntax highlighted code block
 
 [Link](url) and ![Image](src)
 ```
-
 For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
 
 ### Jekyll Themes
