@@ -21,12 +21,12 @@ def normalize(img):
     return 255 / x.max() * x
 
 def update(x):
-    hsv_green_lower[0][0][0] = cv2.getTrackbarPos('H_LOW', 'mask')
-    hsv_green_lower[0][0][1] = cv2.getTrackbarPos('S_LOW', 'mask')
-    hsv_green_lower[0][0][2] = cv2.getTrackbarPos('V_LOW', 'mask')
-    hsv_green_upper[0][0][0] = cv2.getTrackbarPos('H_HIGH', 'mask')
-    hsv_green_upper[0][0][1] = cv2.getTrackbarPos('S_HIGH', 'mask')
-    hsv_green_upper[0][0][2] = cv2.getTrackbarPos('V_HIGH', 'mask')
+    hsv_green_lower[0] = cv2.getTrackbarPos('H_LOW', 'mask')
+    hsv_green_lower[1] = cv2.getTrackbarPos('S_LOW', 'mask')
+    hsv_green_lower[2] = cv2.getTrackbarPos('V_LOW', 'mask')
+    hsv_green_upper[0] = cv2.getTrackbarPos('H_HIGH', 'mask')
+    hsv_green_upper[1] = cv2.getTrackbarPos('S_HIGH', 'mask')
+    hsv_green_upper[2] = cv2.getTrackbarPos('V_HIGH', 'mask')
 
     print hsv_green_lower, hsv_green_upper
 
@@ -43,11 +43,11 @@ def update(x):
 img = cv2.imread('palla.png',1)
 img = adjust_gamma(img, gamma=0.6)
 
-green_lower = np.uint8([[[23, 48, 3]]])
-green_upper = np.uint8([[[154, 193, 40]]])
+hsv_green_lower = np.array([23, 48, 3])
+hsv_green_upper = np.array([154, 193, 40])
 
-hsv_green_lower = cv2.cvtColor(green_lower, cv2.COLOR_BGR2HSV)
-hsv_green_upper = cv2.cvtColor(green_upper, cv2.COLOR_BGR2HSV)
+#hsv_green_lower = cv2.cvtColor(green_lower, cv2.COLOR_BGR2HSV)
+#hsv_green_upper = cv2.cvtColor(green_upper, cv2.COLOR_BGR2HSV)
 
 
 frame = imutils.resize(img, width=600)
@@ -68,14 +68,14 @@ cv2.imshow('img', frame)
 
 
 
-cv2.createTrackbar('H_LOW' , 'mask', hsv_green_lower[0][0][0], 255, update)
-cv2.createTrackbar('H_HIGH', 'mask', hsv_green_upper[0][0][0], 255, update)
+cv2.createTrackbar('H_LOW' , 'mask', hsv_green_lower[0], 255, update)
+cv2.createTrackbar('H_HIGH', 'mask', hsv_green_upper[0], 255, update)
 
-cv2.createTrackbar('S_LOW' , 'mask', hsv_green_lower[0][0][1], 255, update)
-cv2.createTrackbar('S_HIGH', 'mask', hsv_green_upper[0][0][1], 255, update)
+cv2.createTrackbar('S_LOW' , 'mask', hsv_green_lower[1], 255, update)
+cv2.createTrackbar('S_HIGH', 'mask', hsv_green_upper[1], 255, update)
 
-cv2.createTrackbar('V_LOW' , 'mask', hsv_green_lower[0][0][2], 255, update)
-cv2.createTrackbar('V_HIGH', 'mask', hsv_green_upper[0][0][2], 255, update)
+cv2.createTrackbar('V_LOW' , 'mask', hsv_green_lower[2], 255, update)
+cv2.createTrackbar('V_HIGH', 'mask', hsv_green_upper[2], 255, update)
 cv2.imshow('mask', mask)
 cv2.imshow('img', frame)
 cv2.waitKey(0)

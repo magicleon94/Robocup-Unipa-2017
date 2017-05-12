@@ -11,7 +11,7 @@ def adjust_gamma(image, gamma=1.0):
    return cv2.LUT(image, table)
 
 img = cv2.imread('palla.png',1)
-img = adjust_gamma(img, gamma=0.6)
+#img = adjust_gamma(img, gamma=0.6)
 
 #green_lower = np.array([23, 48, 3])
 #green_upper = np.array([154, 193, 40])
@@ -20,8 +20,8 @@ img = adjust_gamma(img, gamma=0.6)
 #hsv_green_lower = cv2.cvtColor(green_lower,cv2.COLOR_BGR2HSV)
 #hsv_green_upper = cv2.cvtColor(green_upper,cv2.COLOR_BGR2HSV)
 
-hsv_lower = np.uint8([[[61, 42, 28]]])
-hsv_upper = np.uint8([[[240, 131, 103]]])
+hsv_lower = np.array([37, 182, 0])
+hsv_upper = np.array([113, 255, 198])
 
 frame = imutils.resize(img, width=600)
 # blurred = cv2.GaussianBlur(frame, (11, 11), 0)
