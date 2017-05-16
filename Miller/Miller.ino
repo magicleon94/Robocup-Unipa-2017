@@ -17,17 +17,21 @@
 #define TURN_RIGHT_MICRO    6
 #define GRAB                10
 #define RELEASE             11
+#define BACKWARD_LEFT       12
+#define BACKWARD_RIGHT      13
 
-#define ENA               2
-#define IN1               3
-#define IN2               4
-#define IN3               5
-#define IN4               6
-#define ENB               7
+#define ENA                 2
+#define IN1                 3
+#define IN2                 4
+#define IN3                 5
+#define IN4                 6
+#define ENB                 7
 
-#define leftIR            A0
-#define frontIR           A1
-#define rightIR           A2
+#define leftIR              A0
+#define frontIR             A1
+#define rightIR             A2
+
+
 
 ESP8266 wifi(Serial1,115200);
 
@@ -56,7 +60,7 @@ void setup() {
   } else {
     Serial.print("single err\r\n");
   }
-  
+
   pinMode(leftIR,INPUT);
   pinMode(frontIR,INPUT);
   pinMode(rightIR,INPUT);
@@ -81,7 +85,7 @@ void askAndExecute(char* data){
 
   //connection established
 
-  
+
   wifi.send((const uint8_t*)data,strlen(data));
 
   uint32_t len = wifi.recv(buffer,sizeof(buffer),10000);
@@ -91,32 +95,48 @@ void askAndExecute(char* data){
 
   switch(command){
     case FORWARD:{
-      Serial.println("Moving forward");
-      break;
+        Serial.println("Moving forward");
+        moveForward();
+        break;
     }
     case FORWARD_FAST:{
-      Serial.println("Moving forward faaaaast");
-      break;
+        Serial.println("Moving forward faaaaast");
+        moveForwardFast();
+        break;
     }
     case BACKWARD:{
-      Serial.println("Moving backward");
-      break;
+        Serial.println("Moving backward");
+
+        moveBackward();
+
+        break;
     }
     case TURN_LEFT:{
-      Serial.println("Turning left");
-      break;
+        Serial.println("Turning left");
+
+        turnLeft();
+
+        break;
     }
     case TURN_LEFT_MICRO:{
-      Serial.println("Turning left a bit");
-      break;
+        Serial.println("Turning left a bit");
+        turnLeftMicro();
+        break;
     }
     case TURN_RIGHT:{
-      Serial.println("Turning right");
-      break;
+        Serial.println("Turning right");
+        turnRight();
+
+        break;
+
     }
     case TURN_RIGHT_MICRO:{
-      Serial.println("Turning right a bit");
-      break;
+        Serial.println("Turning right a bit");
+
+        turnRightMicro();
+
+        break;
+
     }
     case GRAB:{
       Serial.println("Lowering my arm");
@@ -126,8 +146,20 @@ void askAndExecute(char* data){
       Serial.println("Bringing my arm up");
       break;
     }
+
+    case BACKWARD_LEFT:{
+      Serial.println("Going back and turning left");
+      moveBackward();
+      turnLeft();
+    }
+
+    case BACKWARD_RIGHT:{
+      Serial.println("Going back and turning right");
+      moveBackward();
+      turnRight();
+    }
   }
-  
+
   if (wifi.releaseTCP()) {
         Serial.print("release tcp ok\r\n");
   } else {
@@ -140,7 +172,7 @@ void loop() {
   uint8_t leftObstacle  = digitalRead(leftIR);
   uint8_t frontObstacle = digitalRead(frontIR);
   uint8_t rightObstacle = digitalRead(rightIR);
-  
+
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
   root["leftObstacle"]  = leftObstacle;
@@ -150,5 +182,5 @@ void loop() {
   char msg[256];
   root.printTo(msg,sizeof(msg));
   askAndExecute(msg);
-  
+
 }
