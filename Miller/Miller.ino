@@ -35,18 +35,7 @@
 
 ESP8266 wifi(Serial1,115200);
 
-
-void setup() {
-  // put your setup code here, to run once
-  Serial.begin(115200);
-  Serial.print("Beginning setup...\n");
-
-  if (wifi.setOprToStationSoftAP()) {
-    Serial.print("to station + softap ok\r\n");
-  } else {
-    Serial.print("to station + softap err\r\n");
-  }
-
+void joinNetwork(){
   if (wifi.joinAP(SSID, PASSWORD)) {
     Serial.print("Join AP success\r\n");
     Serial.print("IP:");
@@ -60,7 +49,35 @@ void setup() {
   } else {
     Serial.print("single err\r\n");
   }
+}
 
+void setup() {
+  // put your setup code here, to run once
+  Serial.begin(115200);
+  Serial.print("Beginning setup...\n");
+
+  if (wifi.setOprToStationSoftAP()) {
+    Serial.print("to station + softap ok\r\n");
+  } else {
+    Serial.print("to station + softap err\r\n");
+  }
+
+/*
+  if (wifi.joinAP(SSID, PASSWORD)) {
+    Serial.print("Join AP success\r\n");
+    Serial.print("IP:");
+    Serial.println( wifi.getLocalIP().c_str());
+  } else {
+    Serial.print("Join AP failure\r\n");
+  }
+
+  if (wifi.disableMUX()) {
+    Serial.print("single ok\r\n");
+  } else {
+    Serial.print("single err\r\n");
+  }
+*/
+  joinNetwork();
   pinMode(leftIR,INPUT);
   pinMode(frontIR,INPUT);
   pinMode(rightIR,INPUT);
@@ -78,9 +95,15 @@ void askAndExecute(char* data){
   //establishing connection
   if (wifi.createTCP(SERVER_ADDR,SERVER_PORT)){
     Serial.print("TCP connection successfully created\n");
+    Serial.print(wifi.getNowConnecAp());
   }else{
     //Serial.print("Error on creating TCP connection\n");
     return;
+    /*
+     * if wifi.getNowConnectAp().equals("No AP"){
+     *  joinNetwork();
+     * }
+     */
   }
 
   //connection established
