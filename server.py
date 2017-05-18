@@ -19,6 +19,7 @@ BACKWARD_RIGHT    =     13
 TCP_IP = "192.168.1.101"
 TCP_PORT = 1931
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #this should prevent errors of "already in use"
 s.bind((TCP_IP, TCP_PORT)) #bind socket
 
 BUFFER_SIZE = 100  #  BUFFER SIZE - da controllare se aumentare o diminuire
