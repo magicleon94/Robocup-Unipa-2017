@@ -1,11 +1,11 @@
 #define FORWARD_SPEED       100
 #define FORWARD_FAST_SPEED  255
-#define FORWARD_TIME        300
+#define FORWARD_TIME        400
 #define BACKWARD_SPEED      80
 #define BACKWARD_TIME       200
 #define TURNING_SPEED       100
-#define TURNING_TIME        200
-#define TURNING_TIME_MICRO  100
+#define TURNING_TIME        300
+#define TURNING_TIME_MICRO  150
 
 
 void moveForward(){
@@ -20,7 +20,7 @@ void moveForward(){
 
   long t0 = millis();
 
-  analogWrite(ENB,FORWARD_SPEED);
+  analogWrite(ENB,FORWARD_SPEED+5);
   analogWrite(ENA,FORWARD_SPEED);
 
   while (millis()-t0<FORWARD_TIME){

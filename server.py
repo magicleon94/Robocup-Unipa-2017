@@ -17,7 +17,7 @@ BACKWARD_LEFT     =     12
 BACKWARD_RIGHT    =     13
 
 TCP_IP = "192.168.1.101"
-TCP_PORT = 1235
+TCP_PORT = 1931
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
 s.bind((TCP_IP, TCP_PORT)) #bind socket
 
@@ -48,6 +48,8 @@ try:
 
         if not leftObstacle and not rightObstacle and not frontObstacle:
             server_message = FORWARD
+        elif leftObstacle and rightObstacle:
+            server_message = BACKWARD_RIGHT
         elif leftObstacle:
             server_message = TURN_RIGHT
         elif rightObstacle:
@@ -55,10 +57,7 @@ try:
         else:
             server_message = BACKWARD_LEFT
 
-        #the message sent from the server must be a string or buffer
-        server_message = str(server_message)
-
-        conn.send(server_message)
+        conn.send(str(server_message))
 except KeyboardInterrupt:
     print "Shutting down"
     s.close()

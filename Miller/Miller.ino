@@ -6,7 +6,7 @@
 #define SSID            "Robot Wifi"
 #define PASSWORD        "robomiller"
 #define SERVER_ADDR     "192.168.1.101"
-#define SERVER_PORT     (1235)
+#define SERVER_PORT     (1931)
 
 #define FORWARD             0
 #define FORWARD_FAST        1
@@ -57,10 +57,10 @@ void setup() {
   Serial.begin(115200);
   Serial.print("Beginning setup...\n");
 
-  if (wifi.setOprToStationSoftAP()) {
-    Serial.print("to station + softap ok\r\n");
+  if (wifi.setOprToStation()) {
+    Serial.print("to station ok\r\n");
   } else {
-    Serial.print("to station + softap err\r\n");
+    Serial.print("to station err\r\n");
   }
 
 /*
