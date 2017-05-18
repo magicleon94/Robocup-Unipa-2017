@@ -1,11 +1,11 @@
-#define FORWARD_SPEED       80
+#define FORWARD_SPEED       100
 #define FORWARD_FAST_SPEED  255
 #define FORWARD_TIME        300
 #define BACKWARD_SPEED      80
-#define BACKWARD_TIME       300
-#define TURNING_SPEED       90
-#define TURNING_TIME        300
-#define TURNING_TIME_MICRO  200
+#define BACKWARD_TIME       200
+#define TURNING_SPEED       100
+#define TURNING_TIME        200
+#define TURNING_TIME_MICRO  100
 
 
 void moveForward(){

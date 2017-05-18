@@ -1,12 +1,12 @@
-#include <ArduinoJson.h>
-
 #include <doxygen.h>
 #include <ESP8266.h>
 
-#define SSID            "Leon Wireless"
-#define PASSWORD        "cipollamarrone123"
-#define SERVER_ADDR     "192.168.1.83"
-#define SERVER_PORT     (1934)
+#include <ArduinoJson.h>
+
+#define SSID            "Robot Wifi"
+#define PASSWORD        "robomiller"
+#define SERVER_ADDR     "192.168.1.101"
+#define SERVER_PORT     (1235)
 
 #define FORWARD             0
 #define FORWARD_FAST        1
@@ -52,6 +52,7 @@ void joinNetwork(){
 }
 
 void setup() {
+  wifi.restart();
   // put your setup code here, to run once
   Serial.begin(115200);
   Serial.print("Beginning setup...\n");
@@ -93,11 +94,13 @@ void askAndExecute(char* data){
   uint8_t buffer[10] = {0};
 
   //establishing connection
+
   if (wifi.createTCP(SERVER_ADDR,SERVER_PORT)){
     Serial.print("TCP connection successfully created\n");
-    Serial.print(wifi.getNowConnecAp());
+//    Serial.print(wifi.getNowConndAp());
   }else{
-    //Serial.print("Error on creating TCP connection\n");
+    Serial.print("Error on creating TCP connection\n");
+    delay(1000);
     return;
     /*
      * if wifi.getNowConnectAp().equals("No AP"){
