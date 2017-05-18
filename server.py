@@ -3,8 +3,8 @@
 
 import json
 import socket
-TCP_IP = "localhost"
-TCP_PORT = 1931
+TCP_IP = "192.168.1.102"
+TCP_PORT = 1234
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
 s.bind((TCP_IP, TCP_PORT)) #bind socket
 
@@ -19,6 +19,10 @@ while True: # wait connection
 
     #message from the client
     message = conn.recv(BUFFER_SIZE)
+
+    print message
+    print
+
 
     if not message:
         print "There is no message"
@@ -38,23 +42,36 @@ while True: # wait connection
     # BACKWARD_LEFT     12
     # BACKWARD_RIGHT    13
 
+    left = input_dictionary["leftObstacle"] == 1
+    front = input_dictionary["frontObstacle"] == 1
+    right = input_dictionary["rightObstacle"] == 1
 
-    if input_dictionary["leftObstacle"] == 1 and input_dictionary["frontObstacle"] == 1 and input_dictionary["rightObstacle"] == 1:
-        server_message = 1
-    elif input_dictionary["leftObstacle"] == 0 and input_dictionary["frontObstacle"] == 1 and input_dictionary["rightObstacle"] == 1:
-        server_message = 6
-    elif input_dictionary["leftObstacle"] == 1 and input_dictionary["frontObstacle"] == 1 and input_dictionary["rightObstacle"] == 0 :
-        server_message = 4
-    elif input_dictionary["leftObstacle"] == 1 and input_dictionary["frontObstacle"] == 0 and input_dictionary["rightObstacle"] == 1:
-        server_message = 6
-    elif input_dictionary["leftObstacle"] == 0 and input_dictionary["frontObstacle"] == 1 and input_dictionary["rightObstacle"] == 0:
-        server_message = 1
-    elif input_dictionary["leftObstacle"] == 0 and input_dictionary["frontObstacle"] == 0 and input_dictionary["rightObstacle"] == 1:
+    if left and front and right:
+        server_message = 0
+    elif left and not right:
+        server_message = 3
+    elif right and not left:
+        server_message = 5
+    else:
         server_message = 12
-    elif input_dictionary["leftObstacle"] == 1 and input_dictionary["frontObstacle"] == 0 and input_dictionary["rightObstacle"] == 0:
-        server_message = 13
-    else :
-        server_message = 2
+
+
+#if input_dictionary["leftObstacle"] == 1 and input_dictionary["frontObstacle"] == 1 and input_dictionary["rightObstacle"] == 1:
+#       server_message = 1
+#   elif input_dictionary["leftObstacle"] == 0 and input_dictionary["frontObstacle"] == 1 and input_dictionary["rightObstacle"] == 1:
+#       server_message = 6
+#   elif input_dictionary["leftObstacle"] == 1 and input_dictionary["frontObstacle"] == 1 and input_dictionary["rightObstacle"] == 0 :
+#       server_message = 4
+#   elif input_dictionary["leftObstacle"] == 1 and input_dictionary["frontObstacle"] == 0 and input_dictionary["rightObstacle"] == 1:
+#       server_message = 6
+#   elif input_dictionary["leftObstacle"] == 0 and input_dictionary["frontObstacle"] == 1 and input_dictionary["rightObstacle"] == 0:
+#        server_message = 1
+#   elif input_dictionary["leftObstacle"] == 0 and input_dictionary["frontObstacle"] == 0 and input_dictionary["rightObstacle"] == 1:
+#       server_message = 12
+#   elif input_dictionary["leftObstacle"] == 1 and input_dictionary["frontObstacle"] == 0 and input_dictionary["rightObstacle"] == 0:
+#       server_message = 13
+#   else :
+#       server_message = 2
 
     #the message sent from the server must be a string or buffer
     server_message = str(server_message)
