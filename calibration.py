@@ -41,8 +41,8 @@ def update(x):
 #cap = cv2.VideoCapture(0)
 
 
-hsv_green_lower = np.array([0, 149, 37])
-hsv_green_upper = np.array([6, 220, 241])
+hsv_green_lower = np.array([0, 114, 34])
+hsv_green_upper = np.array([17, 220, 235])
 
 first_time = True
 
@@ -51,7 +51,7 @@ first_time = True
 
 while(True):
     #ret, frame = cap.read()
-    frame = cv2.imread('immagini/all.jpg', 1)
+    frame = cv2.imread('immagini/50cm.jpg', 1)
     frame = imutils.resize(frame, width=600)
     # blurred = cv2.GaussianBlur(frame, (11, 11), 0)
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
