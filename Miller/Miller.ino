@@ -51,6 +51,30 @@ void joinNetwork(){
   }
 }
 
+void createTCP(){
+  
+  if (wifi.createTCP(SERVER_ADDR,SERVER_PORT)){
+    Serial.print("TCP connection successfully created\n");
+  }else{
+    Serial.print("Error on creating TCP connection\n");
+    delay(1000);
+    return;
+    /*
+     * if wifi.getNowConnectAp().equals("No AP"){
+     *  joinNetwork();
+     * }
+     */
+  }
+
+}
+
+void releaseTCP(){
+  if (wifi.releaseTCP()) {
+        Serial.print("release tcp ok\r\n");
+  } else {
+        Serial.print("release tcp err\r\n");
+  }
+}
 void setup() {
   wifi.restart();
   // put your setup code here, to run once
@@ -63,22 +87,9 @@ void setup() {
     Serial.print("to station err\r\n");
   }
 
-/*
-  if (wifi.joinAP(SSID, PASSWORD)) {
-    Serial.print("Join AP success\r\n");
-    Serial.print("IP:");
-    Serial.println( wifi.getLocalIP().c_str());
-  } else {
-    Serial.print("Join AP failure\r\n");
-  }
 
-  if (wifi.disableMUX()) {
-    Serial.print("single ok\r\n");
-  } else {
-    Serial.print("single err\r\n");
-  }
-*/
   joinNetwork();
+
   pinMode(leftIR,INPUT);
   pinMode(frontIR,INPUT);
   pinMode(rightIR,INPUT);
@@ -91,32 +102,18 @@ void setup() {
 }
 
 void askAndExecute(char* data){
-  uint8_t buffer[10] = {0};
+  uint8_t buffer[10] = {99};
 
-  //establishing connection
-
-  if (wifi.createTCP(SERVER_ADDR,SERVER_PORT)){
-    Serial.print("TCP connection successfully created\n");
-//    Serial.print(wifi.getNowConndAp());
-  }else{
-    Serial.print("Error on creating TCP connection\n");
-    delay(1000);
-    return;
-    /*
-     * if wifi.getNowConnectAp().equals("No AP"){
-     *  joinNetwork();
-     * }
-     */
+  if (wifi.getIPStatus().equals("STATUS:5")){
+    Serial.println("Network error, reconnecting");
+    joinNetwork();
+    createTCP();
   }
-
-  //connection established
-
-
+  
+  createTCP();
   wifi.send((const uint8_t*)data,strlen(data));
-
   uint32_t len = wifi.recv(buffer,sizeof(buffer),10000);
-  Serial.print("Received:");
-  Serial.println((char*)buffer);
+
   int command = atoi((char*)buffer);
 
   switch(command){
@@ -184,13 +181,9 @@ void askAndExecute(char* data){
       moveBackward();
       turnRight();
     }
+      
   }
-
-  if (wifi.releaseTCP()) {
-        Serial.print("release tcp ok\r\n");
-  } else {
-        Serial.print("release tcp err\r\n");
-  }
+  releaseTCP();
   return;
 }
 
