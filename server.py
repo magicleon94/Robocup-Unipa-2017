@@ -24,10 +24,10 @@ s.bind((TCP_IP, TCP_PORT)) #bind socket
 
 BUFFER_SIZE = 100  #  BUFFER SIZE - da controllare se aumentare o diminuire
 # This function takes an int argument called backlog, which specifies the
-# maximum number of  connections that are kept waiting if the application is
+# maximum number of connections that are kept waiting if the application is
 # already busy.
 s.listen(1)
-print "Sistening started"
+print "Sisteming started"
 try:
     while True: # wait connection
         conn, addr = s.accept() #accept connection
