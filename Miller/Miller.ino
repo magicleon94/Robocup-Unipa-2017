@@ -1,12 +1,12 @@
-#include <ArduinoJson.h>
-
 #include <doxygen.h>
 #include <ESP8266.h>
 
-#define SSID            "Leon Wireless"
-#define PASSWORD        "cipollamarrone123"
-#define SERVER_ADDR     "192.168.1.83"
-#define SERVER_PORT     (1934)
+#include <ArduinoJson.h>
+
+#define SSID            "Robot Wifi"
+#define PASSWORD        "robomiller"
+#define SERVER_ADDR     "192.168.1.101"
+#define SERVER_PORT     (1931)
 
 #define FORWARD             0
 #define FORWARD_FAST        1
@@ -17,32 +17,25 @@
 #define TURN_RIGHT_MICRO    6
 #define GRAB                10
 #define RELEASE             11
+#define BACKWARD_LEFT       12
+#define BACKWARD_RIGHT      13
 
-#define ENA               2
-#define IN1               3
-#define IN2               4
-#define IN3               5
-#define IN4               6
-#define ENB               7
+#define ENA                 2
+#define IN1                 3
+#define IN2                 4
+#define IN3                 5
+#define IN4                 6
+#define ENB                 7
 
-#define leftIR            A0
-#define frontIR           A1
-#define rightIR           A2
+#define leftIR              A0
+#define frontIR             A1
+#define rightIR             A2
+
+
 
 ESP8266 wifi(Serial1,115200);
 
-
-void setup() {
-  // put your setup code here, to run once
-  Serial.begin(115200);
-  Serial.print("Beginning setup...\n");
-
-  if (wifi.setOprToStationSoftAP()) {
-    Serial.print("to station + softap ok\r\n");
-  } else {
-    Serial.print("to station + softap err\r\n");
-  }
-
+void joinNetwork(){
   if (wifi.joinAP(SSID, PASSWORD)) {
     Serial.print("Join AP success\r\n");
     Serial.print("IP:");
@@ -56,7 +49,36 @@ void setup() {
   } else {
     Serial.print("single err\r\n");
   }
-  
+}
+
+void setup() {
+  wifi.restart();
+  // put your setup code here, to run once
+  Serial.begin(115200);
+  Serial.print("Beginning setup...\n");
+
+  if (wifi.setOprToStation()) {
+    Serial.print("to station ok\r\n");
+  } else {
+    Serial.print("to station err\r\n");
+  }
+
+/*
+  if (wifi.joinAP(SSID, PASSWORD)) {
+    Serial.print("Join AP success\r\n");
+    Serial.print("IP:");
+    Serial.println( wifi.getLocalIP().c_str());
+  } else {
+    Serial.print("Join AP failure\r\n");
+  }
+
+  if (wifi.disableMUX()) {
+    Serial.print("single ok\r\n");
+  } else {
+    Serial.print("single err\r\n");
+  }
+*/
+  joinNetwork();
   pinMode(leftIR,INPUT);
   pinMode(frontIR,INPUT);
   pinMode(rightIR,INPUT);
@@ -72,16 +94,24 @@ void askAndExecute(char* data){
   uint8_t buffer[10] = {0};
 
   //establishing connection
+
   if (wifi.createTCP(SERVER_ADDR,SERVER_PORT)){
     Serial.print("TCP connection successfully created\n");
+//    Serial.print(wifi.getNowConndAp());
   }else{
-    //Serial.print("Error on creating TCP connection\n");
+    Serial.print("Error on creating TCP connection\n");
+    delay(1000);
     return;
+    /*
+     * if wifi.getNowConnectAp().equals("No AP"){
+     *  joinNetwork();
+     * }
+     */
   }
 
   //connection established
 
-  
+
   wifi.send((const uint8_t*)data,strlen(data));
 
   uint32_t len = wifi.recv(buffer,sizeof(buffer),10000);
@@ -91,32 +121,48 @@ void askAndExecute(char* data){
 
   switch(command){
     case FORWARD:{
-      Serial.println("Moving forward");
-      break;
+        Serial.println("Moving forward");
+        moveForward();
+        break;
     }
     case FORWARD_FAST:{
-      Serial.println("Moving forward faaaaast");
-      break;
+        Serial.println("Moving forward faaaaast");
+        moveForwardFast();
+        break;
     }
     case BACKWARD:{
-      Serial.println("Moving backward");
-      break;
+        Serial.println("Moving backward");
+
+        moveBackward();
+
+        break;
     }
     case TURN_LEFT:{
-      Serial.println("Turning left");
-      break;
+        Serial.println("Turning left");
+
+        turnLeft();
+
+        break;
     }
     case TURN_LEFT_MICRO:{
-      Serial.println("Turning left a bit");
-      break;
+        Serial.println("Turning left a bit");
+        turnLeftMicro();
+        break;
     }
     case TURN_RIGHT:{
-      Serial.println("Turning right");
-      break;
+        Serial.println("Turning right");
+        turnRight();
+
+        break;
+
     }
     case TURN_RIGHT_MICRO:{
-      Serial.println("Turning right a bit");
-      break;
+        Serial.println("Turning right a bit");
+
+        turnRightMicro();
+
+        break;
+
     }
     case GRAB:{
       Serial.println("Lowering my arm");
@@ -126,8 +172,20 @@ void askAndExecute(char* data){
       Serial.println("Bringing my arm up");
       break;
     }
+
+    case BACKWARD_LEFT:{
+      Serial.println("Going back and turning left");
+      moveBackward();
+      turnLeft();
+    }
+
+    case BACKWARD_RIGHT:{
+      Serial.println("Going back and turning right");
+      moveBackward();
+      turnRight();
+    }
   }
-  
+
   if (wifi.releaseTCP()) {
         Serial.print("release tcp ok\r\n");
   } else {
@@ -140,7 +198,7 @@ void loop() {
   uint8_t leftObstacle  = digitalRead(leftIR);
   uint8_t frontObstacle = digitalRead(frontIR);
   uint8_t rightObstacle = digitalRead(rightIR);
-  
+
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
   root["leftObstacle"]  = leftObstacle;
@@ -150,5 +208,5 @@ void loop() {
   char msg[256];
   root.printTo(msg,sizeof(msg));
   askAndExecute(msg);
-  
+
 }
