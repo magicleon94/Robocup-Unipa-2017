@@ -48,10 +48,10 @@ first_time = True
 
 #hsv_green_lower = cv2.cvtColor(hsv_green_lower, cv2.COLOR_BGR2HSV)
 #hsv_green_upper = cv2.cvtColor(hsv_green_upper, cv2.COLOR_BGR2HSV)
-
+cap = cv2.VideoCapture('rtsp://@192.168.1.1/live/ch00_0', cv2.CAP_FFMPEG)
 while(True):
-    #ret, frame = cap.read()
-    frame = cv2.imread('immagini/50cm.jpg', 1)
+    #frame = cv2.imread('immagini/50cm.jpg', 1)
+    ret, frame = cap.read()
     frame = imutils.resize(frame, width=600)
     # blurred = cv2.GaussianBlur(frame, (11, 11), 0)
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)

@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import imutils
 
-
 class Object(object):
     def __init__(self, name):
         self.type = None
@@ -96,10 +95,13 @@ class DetectorHandler(object):
 
             if range_min <= self.target.bounding_box[0][0] <= range_max:
                 print "vai avanti"
+                return 0
             elif self.target.bounding_box[0][0] < range_min:
                 print "vai a sinistra"
+                return 4
             else:
                 print "vai a destra"
+                return 6
     def update(self, frame): #aggiorna distanze e bounding box di tutti i detector #TODO
         self.target = None
         self.frame = frame
@@ -114,8 +116,9 @@ class DetectorHandler(object):
 
 
 if __name__ == '__main__':
-    cap = cv2.VideoCapture('immagini/IMG_5110.MOV')
+    #cap = cv2.VideoCapture('immagini/IMG_5110.MOV')
     #cap = cv2.VideoCapture('rtsp://@192.168.0.102/live/ch00_0', cv2.CAP_FFMPEG)
+    cap = cv2.VideoCapture('rtsp://@192.168.1.21/live/ch00_0', cv2.CAP_FFMPEG)
 
     detectors = [
         Detector(Object("green")),
