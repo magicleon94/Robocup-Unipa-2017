@@ -20,7 +20,7 @@ void moveForward(){
 
   long t0 = millis();
 
-  analogWrite(ENB,FORWARD_SPEED+5);
+  analogWrite(ENB,FORWARD_SPEED);
   analogWrite(ENA,FORWARD_SPEED);
 
   while (millis()-t0<FORWARD_TIME){
