@@ -5,7 +5,7 @@
 
 #define SSID            "Robot Wifi"
 #define PASSWORD        "robomiller"
-#define SERVER_ADDR     "192.168.1.101"
+#define SERVER_ADDR     "192.168.1.83"
 #define SERVER_PORT     (1931)
 
 #define FORWARD             0
@@ -20,18 +20,18 @@
 #define BACKWARD_LEFT       12
 #define BACKWARD_RIGHT      13
 
-#define ENA                 2
-#define IN1                 3
-#define IN2                 4
-#define IN3                 5
-#define IN4                 6
-#define ENB                 7
+#define ENA                 7
+#define IN1                 4
+#define IN2                 3
+#define IN3                 6
+#define IN4                 5
+#define ENB                 2
 
-#define leftIR              A0
-#define frontIR             A1
-#define rightIR             A2
+#define leftIR              53
+#define frontIR             22
+#define rightIR             23
 
-
+#define DEBUG_LED_WIFI      A0
 
 ESP8266 wifi(Serial1,115200);
 
@@ -40,8 +40,11 @@ void joinNetwork(){
     Serial.print("Join AP success\r\n");
     Serial.print("IP:");
     Serial.println( wifi.getLocalIP().c_str());
+    digitalWrite(DEBUG_LED_WIFI,HIGH);
   } else {
     Serial.print("Join AP failure\r\n");
+    digitalWrite(DEBUG_LED_WIFI,LOW);
+
   }
 
   if (wifi.disableMUX()) {
@@ -52,7 +55,7 @@ void joinNetwork(){
 }
 
 void createTCP(){
-  
+
   if (wifi.createTCP(SERVER_ADDR,SERVER_PORT)){
     Serial.print("TCP connection successfully created\n");
   }else{
@@ -87,9 +90,6 @@ void setup() {
     Serial.print("to station err\r\n");
   }
 
-
-  joinNetwork();
-
   pinMode(leftIR,INPUT);
   pinMode(frontIR,INPUT);
   pinMode(rightIR,INPUT);
@@ -99,6 +99,9 @@ void setup() {
   pinMode(IN2,OUTPUT);
   pinMode(IN3,OUTPUT);
   pinMode(IN4,OUTPUT);
+  pinMode(DEBUG_LED_WIFI,OUTPUT);
+
+  joinNetwork();
 }
 
 void askAndExecute(char* data){
@@ -109,7 +112,7 @@ void askAndExecute(char* data){
     joinNetwork();
     createTCP();
   }
-  
+
   createTCP();
   wifi.send((const uint8_t*)data,strlen(data));
   uint32_t len = wifi.recv(buffer,sizeof(buffer),10000);
@@ -181,7 +184,7 @@ void askAndExecute(char* data){
       moveBackward();
       turnRight();
     }
-      
+
   }
   releaseTCP();
   return;
