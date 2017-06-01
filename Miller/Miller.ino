@@ -39,6 +39,7 @@
 ESP8266 wifi(Serial1,115200);
 MPU9250_DMP imu;
 float last_movement_angle = 0;
+float last_movement_space = 0;
 
 void joinNetwork(){
   if (wifi.joinAP(SSID, PASSWORD)) {
@@ -110,7 +111,7 @@ void setup() {
   joinNetwork();
 }
 
-float askAndExecute(char* data){
+void askAndExecute(char* data,float *movedAngle, float* movedSpace){
   uint8_t buffer[10] = {99};
   
   if (wifi.getIPStatus().equals("STATUS:5")){
@@ -128,32 +129,38 @@ float askAndExecute(char* data){
   switch(command){
     
     case FORWARD:{
-        return moveForward();
+        moveForward(movedAngle,movedSpace);
+        break;
     }
     
     case FORWARD_FAST:{
-        return moveForwardFast();
+        moveForwardFast(movedAngle,movedSpace);
+        break;
     }
     
     case BACKWARD:{
-        moveBackward();
-        return 0;
+        moveBackward(movedAngle,movedSpace);
+        break;
     }
     
     case TURN_LEFT:{
-        return turnLeft();
+        turnLeft(movedAngle,movedSpace);
+        break;
     }
     
     case TURN_LEFT_MICRO:{
-        return turnLeftMicro();
+        turnLeftMicro(movedAngle,movedSpace);
+        break;
     }
     
     case TURN_RIGHT:{
-        return turnRight();
+        turnRight(movedAngle,movedSpace);
+        break;
     }
     
     case TURN_RIGHT_MICRO:{
-        return turnRightMicro();
+        turnRightMicro(movedAngle,movedSpace);
+        break;
     }
     
     case GRAB:{
@@ -166,14 +173,16 @@ float askAndExecute(char* data){
     }
 
     case BACKWARD_LEFT:{
-      moveBackward();
-      return turnLeft();
+      moveBackward(movedAngle,movedSpace);
+      turnLeft(movedAngle,movedSpace);
+      break;
     }
 
     case BACKWARD_RIGHT:{
       Serial.println("Going back and turning right");
-      moveBackward();
-      return turnRight();
+      moveBackward(movedAngle,movedSpace);
+      turnRight(movedAngle,movedSpace);
+      break;
     }
 
   }
@@ -192,9 +201,10 @@ void loop() {
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
   root["lastMovementAngle"] = last_movement_angle;
+  root["lastMovementSpace"] = last_movement_space;
 
   char msg[256];
   root.printTo(msg,sizeof(msg));
-  last_movement_angle = askAndExecute(msg);
+  askAndExecute(msg,&last_movement_angle,&last_movement_space);
 
 }
