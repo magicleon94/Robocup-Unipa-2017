@@ -48,10 +48,13 @@ first_time = True
 
 #hsv_green_lower = cv2.cvtColor(hsv_green_lower, cv2.COLOR_BGR2HSV)
 #hsv_green_upper = cv2.cvtColor(hsv_green_upper, cv2.COLOR_BGR2HSV)
-cap = cv2.VideoCapture('rtsp://@192.168.1.1/live/ch00_0', cv2.CAP_FFMPEG)
+cap = cv2.VideoCapture('rtsp://@192.168.1.103/live/ch00_0', cv2.CAP_FFMPEG)
 while(True):
     #frame = cv2.imread('immagini/50cm.jpg', 1)
     ret, frame = cap.read()
+    if frame is None:
+        print "Frame is none"
+        continue
     frame = imutils.resize(frame, width=600)
     # blurred = cv2.GaussianBlur(frame, (11, 11), 0)
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -113,5 +116,3 @@ while(True):
 #cap.release()
 cv2.destroyAllWindows()
 #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
-
-
