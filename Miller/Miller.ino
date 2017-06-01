@@ -1,11 +1,14 @@
 #include <doxygen.h>
 #include <ESP8266.h>
 
+#include <MPU9250_RegisterMap.h>
+#include <SparkFunMPU9250-DMP.h>
+
 #include <ArduinoJson.h>
 
 #define SSID            "Robot Wifi"
 #define PASSWORD        "robomiller"
-#define SERVER_ADDR     "192.168.1.83"
+#define SERVER_ADDR     "192.168.1.101"
 #define SERVER_PORT     (1931)
 
 #define FORWARD             0
@@ -20,12 +23,12 @@
 #define BACKWARD_LEFT       12
 #define BACKWARD_RIGHT      13
 
-#define ENA                 7
-#define IN1                 4
-#define IN2                 3
-#define IN3                 6
-#define IN4                 5
-#define ENB                 2
+#define ENA                 8
+#define IN1                 5
+#define IN2                 4
+#define IN3                 7
+#define IN4                 4
+#define ENB                 3
 
 #define leftIR              53
 #define frontIR             22
@@ -34,6 +37,8 @@
 #define DEBUG_LED_WIFI      A0
 
 ESP8266 wifi(Serial1,115200);
+MPU9250_DMP imu;
+float last_movement_angle = 0;
 
 void joinNetwork(){
   if (wifi.joinAP(SSID, PASSWORD)) {
@@ -78,8 +83,9 @@ void releaseTCP(){
         Serial.print("release tcp err\r\n");
   }
 }
+
 void setup() {
-  wifi.restart();
+  //wifi.restart();
   // put your setup code here, to run once
   Serial.begin(115200);
   Serial.print("Beginning setup...\n");
@@ -104,9 +110,9 @@ void setup() {
   joinNetwork();
 }
 
-void askAndExecute(char* data){
+float askAndExecute(char* data){
   uint8_t buffer[10] = {99};
-
+  
   if (wifi.getIPStatus().equals("STATUS:5")){
     Serial.println("Network error, reconnecting");
     joinNetwork();
@@ -120,50 +126,36 @@ void askAndExecute(char* data){
   int command = atoi((char*)buffer);
 
   switch(command){
+    
     case FORWARD:{
-        Serial.println("Moving forward");
-        moveForward();
-        break;
+        return moveForward();
     }
+    
     case FORWARD_FAST:{
-        Serial.println("Moving forward faaaaast");
-        moveForwardFast();
-        break;
+        return moveForwardFast();
     }
+    
     case BACKWARD:{
-        Serial.println("Moving backward");
-
         moveBackward();
-
-        break;
+        return 0;
     }
+    
     case TURN_LEFT:{
-        Serial.println("Turning left");
-
-        turnLeft();
-
-        break;
+        return turnLeft();
     }
+    
     case TURN_LEFT_MICRO:{
-        Serial.println("Turning left a bit");
-        turnLeftMicro();
-        break;
+        return turnLeftMicro();
     }
+    
     case TURN_RIGHT:{
-        Serial.println("Turning right");
-        turnRight();
-
-        break;
-
+        return turnRight();
     }
+    
     case TURN_RIGHT_MICRO:{
-        Serial.println("Turning right a bit");
-
-        turnRightMicro();
-
-        break;
-
+        return turnRightMicro();
     }
+    
     case GRAB:{
       Serial.println("Lowering my arm");
       break;
@@ -174,15 +166,14 @@ void askAndExecute(char* data){
     }
 
     case BACKWARD_LEFT:{
-      Serial.println("Going back and turning left");
       moveBackward();
-      turnLeft();
+      return turnLeft();
     }
 
     case BACKWARD_RIGHT:{
       Serial.println("Going back and turning right");
       moveBackward();
-      turnRight();
+      return turnRight();
     }
 
   }
@@ -200,9 +191,10 @@ void loop() {
   root["leftObstacle"]  = leftObstacle;
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
+  root["lastMovementAngle"] = last_movement_angle;
 
   char msg[256];
   root.printTo(msg,sizeof(msg));
-  askAndExecute(msg);
+  last_movement_angle = askAndExecute(msg);
 
 }
