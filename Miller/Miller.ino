@@ -6,9 +6,9 @@
 
 #include <ArduinoJson.h>
 
-#define SSID            "Robot Wifi"
-#define PASSWORD        "robomiller"
-#define SERVER_ADDR     "192.168.1.101"
+#define SSID            "Leon Wireless"
+#define PASSWORD        "cipollamarrone123"
+#define SERVER_ADDR     "192.168.1.83"
 #define SERVER_PORT     (1931)
 
 #define FORWARD             0
@@ -24,10 +24,10 @@
 #define BACKWARD_RIGHT      13
 
 #define ENA                 8
-#define IN1                 5
-#define IN2                 4
-#define IN3                 7
-#define IN4                 4
+#define IN1                 6
+#define IN2                 7
+#define IN3                 4
+#define IN4                 5
 #define ENB                 3
 
 #define leftIR              53
@@ -40,6 +40,24 @@ ESP8266 wifi(Serial1,115200);
 MPU9250_DMP imu;
 float last_movement_angle = 0;
 float last_movement_space = 0;
+bool emergency_stopped = false;
+
+void setupMPU9250(){
+  if (imu.begin() != INV_SUCCESS){
+    while (1){
+      Serial.println("Error");
+      if (imu.begin() == INV_SUCCESS){
+        break;
+      }
+    }
+  }
+  imu.setSensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS);
+  imu.setLPF(5);
+  imu.setSampleRate(10);
+  imu.setCompassSampleRate(10);
+  imu.setGyroFSR(1000);
+  imu.setAccelFSR(2);
+}
 
 void joinNetwork(){
   if (wifi.joinAP(SSID, PASSWORD)) {
@@ -108,6 +126,7 @@ void setup() {
   pinMode(IN4,OUTPUT);
   pinMode(DEBUG_LED_WIFI,OUTPUT);
 
+  setupMPU9250();
   joinNetwork();
 }
 
@@ -125,7 +144,6 @@ void askAndExecute(char* data,float *movedAngle, float* movedSpace){
   uint32_t len = wifi.recv(buffer,sizeof(buffer),10000);
 
   int command = atoi((char*)buffer);
-
   switch(command){
     
     case FORWARD:{
@@ -167,6 +185,7 @@ void askAndExecute(char* data,float *movedAngle, float* movedSpace){
       Serial.println("Lowering my arm");
       break;
     }
+    
     case RELEASE:{
       Serial.println("Bringing my arm up");
       break;
@@ -183,6 +202,29 @@ void askAndExecute(char* data,float *movedAngle, float* movedSpace){
       moveBackward(movedAngle,movedSpace);
       turnRight(movedAngle,movedSpace);
       break;
+    }
+
+    default:{
+      switch (command/1000){
+        case FORWARD:{
+          moveForward(movedAngle,movedSpace);
+          break;
+        }
+        case TURN_LEFT:{
+          float targetAngle = command % 1000;
+          Serial.print("Turning left of: ");
+          Serial.println(targetAngle);
+          turnLeft(movedAngle,movedSpace,targetAngle);
+          break;
+        }
+        case TURN_RIGHT:{
+          float targetAngle = command % 1000;
+          Serial.print("Turning right of: ");
+          Serial.println(targetAngle);
+          turnRight(movedAngle,movedSpace,targetAngle);
+          break;
+        }
+      }
     }
 
   }
@@ -206,5 +248,6 @@ void loop() {
   char msg[256];
   root.printTo(msg,sizeof(msg));
   askAndExecute(msg,&last_movement_angle,&last_movement_space);
+  
 
 }
