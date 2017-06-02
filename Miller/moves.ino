@@ -1,4 +1,4 @@
-#define FORWARD_SPEED       220
+#define FORWARD_SPEED       240
 #define FORWARD_FAST_SPEED  255
 #define FORWARD_TIME        600
 #define BACKWARD_SPEED      150
@@ -152,7 +152,7 @@ void turnLeft(float* movedAngle, float *movedSpace, float targetAngle) {
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
 
-  while (millis() - t0 < TURNING_TIME && abs(angle) < targetAngle) {
+  while (angle < targetAngle) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     if (leftObstacle) {
       analogWrite(ENB, 0);
@@ -229,6 +229,7 @@ void turnRight(float* movedAngle, float *movedSpace) {
 }
 
 void turnRight(float* movedAngle, float *movedSpace, float targetAngle) {
+  targetAngle = -targetAngle;
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
@@ -244,17 +245,20 @@ void turnRight(float* movedAngle, float *movedSpace, float targetAngle) {
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
 
-  while (millis() - t0 < TURNING_TIME && abs(angle) < targetAngle) {
+  while (1) {
     bool rightObstacle  = digitalRead(rightIR) == 0;
     if (rightObstacle) {
       analogWrite(ENB, 0);
       analogWrite(ENA, 0);
     }
     angle += getDeltaAngle(&prev_time, millis());
-
+    if (angle < targetAngle){
+      analogWrite(ENA, 0);
+      analogWrite(ENB, 0);
+      break;
+    }
   }
-  analogWrite(ENB, 0);
-  analogWrite(ENA, 0);
+  
   *movedAngle =  angle;
   *movedSpace = 0;
 }
