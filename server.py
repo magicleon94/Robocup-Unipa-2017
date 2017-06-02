@@ -5,6 +5,8 @@ import json
 import socket
 import utils
 
+DEBUG = True
+
 FORWARD           =     0
 FORWARD_FAST      =     1
 BACKWARD          =     2
@@ -47,19 +49,21 @@ try:
         leftObstacle = input_dictionary["leftObstacle"] == 0
         frontObstacle = input_dictionary["frontObstacle"] == 0
         rightObstacle = input_dictionary["rightObstacle"] == 0
-
-        if not leftObstacle and not rightObstacle and not frontObstacle:
-            server_message = FORWARD
-        elif leftObstacle and rightObstacle:
-            server_message = BACKWARD
-        elif leftObstacle:
-            server_message = TURN_RIGHT#utils.calcRotationCode(TURN_RIGHT, 45)
-        elif rightObstacle:
-            server_message = TURN_LEFT#utils.calcRotationCode(TURN_LEFT, 45)
+        if not DEBUG:
+            if not leftObstacle and not rightObstacle and not frontObstacle:
+                server_message = FORWARD
+            elif leftObstacle and rightObstacle:
+                server_message = BACKWARD
+            elif leftObstacle:
+                server_message = TURN_RIGHT#utils.calcRotationCode(TURN_RIGHT, 45)
+            elif rightObstacle:
+                server_message = TURN_LEFT#utils.calcRotationCode(TURN_LEFT, 45)
+            else:
+                server_message = BACKWARD_LEFT#utils.calcRotationCode(TURN_RIGHT, 180)
+            print "Responding: ", server_message
+            conn.send(str(server_message))
         else:
-            server_message = BACKWARD_LEFT#utils.calcRotationCode(TURN_RIGHT, 180)
-        print "Responding: ", server_message
-        conn.send(str(server_message))
+            conn.send(str(raw_input("Insert response\n")))
 except KeyboardInterrupt:
     print "Shutting down"
     s.close()
