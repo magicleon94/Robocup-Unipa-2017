@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import imutils
+import threading
 
 def adjust_gamma(image, gamma=1.0):
 
@@ -45,13 +46,35 @@ hsv_green_lower = np.array([0, 114, 34])
 hsv_green_upper = np.array([17, 220, 235])
 
 first_time = True
-
+frame = None
+ret = None
 #hsv_green_lower = cv2.cvtColor(hsv_green_lower, cv2.COLOR_BGR2HSV)
 #hsv_green_upper = cv2.cvtColor(hsv_green_upper, cv2.COLOR_BGR2HSV)
-cap = cv2.VideoCapture('rtsp://@192.168.1.1/live/ch00_0', cv2.CAP_FFMPEG)
+cap = cv2.VideoCapture('rtsp://@192.168.1.245/live/ch00_0', cv2.CAP_FFMPEG)
+
+class AcquireFrames(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+    def run(self):
+        global cap
+        global frame
+        global ret
+        while True:
+            ret = cap.grab()
+
+frames_grabber = AcquireFrames()
+
+frames_grabber.start()
+
 while(True):
     #frame = cv2.imread('immagini/50cm.jpg', 1)
-    ret, frame = cap.read()
+    if ret is None:
+        print "Ret is none"
+        continue
+    ret, frame = cap.retrieve(ret)
+    if frame is None:
+        print "Frame is none"
+        continue
     frame = imutils.resize(frame, width=600)
     # blurred = cv2.GaussianBlur(frame, (11, 11), 0)
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -106,6 +129,7 @@ while(True):
     cv2.imshow('mask', mask)
     cv2.imshow('img', frame)
     #cv2.waitKey(0)
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     #cv2.destroyAllWindows()
@@ -113,5 +137,3 @@ while(True):
 #cap.release()
 cv2.destroyAllWindows()
 #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
-
-
