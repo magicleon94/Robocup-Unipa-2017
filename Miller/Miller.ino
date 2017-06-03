@@ -1,11 +1,14 @@
 #include <doxygen.h>
 #include <ESP8266.h>
 
+#include <MPU9250_RegisterMap.h>
+#include <SparkFunMPU9250-DMP.h>
+
 #include <ArduinoJson.h>
 
-#define SSID            "Robot Wifi"
-#define PASSWORD        "robomiller"
-#define SERVER_ADDR     "192.168.1.101"
+#define SSID            "Leon Wireless"
+#define PASSWORD        "cipollamarrone123"
+#define SERVER_ADDR     "192.168.1.83"
 #define SERVER_PORT     (1931)
 
 #define FORWARD             0
@@ -20,28 +23,52 @@
 #define BACKWARD_LEFT       12
 #define BACKWARD_RIGHT      13
 
-#define ENA                 2
-#define IN1                 3
-#define IN2                 4
-#define IN3                 5
-#define IN4                 6
-#define ENB                 7
+#define ENA                 8
+#define IN1                 6
+#define IN2                 7
+#define IN3                 4
+#define IN4                 5
+#define ENB                 3
 
-#define leftIR              A0
-#define frontIR             A1
-#define rightIR             A2
+#define leftIR              53
+#define frontIR             22
+#define rightIR             23
 
-
+#define DEBUG_LED_WIFI      A0
 
 ESP8266 wifi(Serial1,115200);
+MPU9250_DMP imu;
+float last_movement_angle = 0;
+float last_movement_space = 0;
+bool emergency_stopped = false;
+
+void setupMPU9250(){
+  if (imu.begin() != INV_SUCCESS){
+    while (1){
+      Serial.println("Error");
+      if (imu.begin() == INV_SUCCESS){
+        break;
+      }
+    }
+  }
+  imu.setSensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS);
+  imu.setLPF(5);
+  imu.setSampleRate(10);
+  imu.setCompassSampleRate(10);
+  imu.setGyroFSR(1000);
+  imu.setAccelFSR(2);
+}
 
 void joinNetwork(){
   if (wifi.joinAP(SSID, PASSWORD)) {
     Serial.print("Join AP success\r\n");
     Serial.print("IP:");
     Serial.println( wifi.getLocalIP().c_str());
+    digitalWrite(DEBUG_LED_WIFI,HIGH);
   } else {
     Serial.print("Join AP failure\r\n");
+    digitalWrite(DEBUG_LED_WIFI,LOW);
+
   }
 
   if (wifi.disableMUX()) {
@@ -52,7 +79,7 @@ void joinNetwork(){
 }
 
 void createTCP(){
-  
+
   if (wifi.createTCP(SERVER_ADDR,SERVER_PORT)){
     Serial.print("TCP connection successfully created\n");
   }else{
@@ -75,8 +102,9 @@ void releaseTCP(){
         Serial.print("release tcp err\r\n");
   }
 }
+
 void setup() {
-  wifi.restart();
+  //wifi.restart();
   // put your setup code here, to run once
   Serial.begin(115200);
   Serial.print("Beginning setup...\n");
@@ -87,9 +115,6 @@ void setup() {
     Serial.print("to station err\r\n");
   }
 
-
-  joinNetwork();
-
   pinMode(leftIR,INPUT);
   pinMode(frontIR,INPUT);
   pinMode(rightIR,INPUT);
@@ -99,89 +124,109 @@ void setup() {
   pinMode(IN2,OUTPUT);
   pinMode(IN3,OUTPUT);
   pinMode(IN4,OUTPUT);
+  pinMode(DEBUG_LED_WIFI,OUTPUT);
+
+  setupMPU9250();
+  joinNetwork();
 }
 
-void askAndExecute(char* data){
+void askAndExecute(char* data,float *movedAngle, float* movedSpace){
   uint8_t buffer[10] = {99};
-
+  
   if (wifi.getIPStatus().equals("STATUS:5")){
     Serial.println("Network error, reconnecting");
     joinNetwork();
     createTCP();
   }
-  
+
   createTCP();
   wifi.send((const uint8_t*)data,strlen(data));
   uint32_t len = wifi.recv(buffer,sizeof(buffer),10000);
 
   int command = atoi((char*)buffer);
-
   switch(command){
+    
     case FORWARD:{
-        Serial.println("Moving forward");
-        moveForward();
+        moveForward(movedAngle,movedSpace);
         break;
     }
+    
     case FORWARD_FAST:{
-        Serial.println("Moving forward faaaaast");
-        moveForwardFast();
+        moveForwardFast(movedAngle,movedSpace);
         break;
     }
+    
     case BACKWARD:{
-        Serial.println("Moving backward");
-
-        moveBackward();
-
+        moveBackward(movedAngle,movedSpace);
         break;
     }
+    
     case TURN_LEFT:{
-        Serial.println("Turning left");
-
-        turnLeft();
-
+        turnLeft(movedAngle,movedSpace);
         break;
     }
+    
     case TURN_LEFT_MICRO:{
-        Serial.println("Turning left a bit");
-        turnLeftMicro();
+        turnLeftMicro(movedAngle,movedSpace);
         break;
     }
+    
     case TURN_RIGHT:{
-        Serial.println("Turning right");
-        turnRight();
-
+        turnRight(movedAngle,movedSpace);
         break;
-
     }
+    
     case TURN_RIGHT_MICRO:{
-        Serial.println("Turning right a bit");
-
-        turnRightMicro();
-
+        turnRightMicro(movedAngle,movedSpace);
         break;
-
     }
+    
     case GRAB:{
       Serial.println("Lowering my arm");
       break;
     }
+    
     case RELEASE:{
       Serial.println("Bringing my arm up");
       break;
     }
 
     case BACKWARD_LEFT:{
-      Serial.println("Going back and turning left");
-      moveBackward();
-      turnLeft();
+      moveBackward(movedAngle,movedSpace);
+      turnLeft(movedAngle,movedSpace);
+      break;
     }
 
     case BACKWARD_RIGHT:{
       Serial.println("Going back and turning right");
-      moveBackward();
-      turnRight();
+      moveBackward(movedAngle,movedSpace);
+      turnRight(movedAngle,movedSpace);
+      break;
     }
-      
+
+    default:{
+      switch (command/1000){
+        case FORWARD:{
+          moveForward(movedAngle,movedSpace);
+          break;
+        }
+        case TURN_LEFT:{
+          float targetAngle = command % 1000;
+          Serial.print("Turning left of: ");
+          Serial.println(targetAngle);
+          turnLeft(movedAngle,movedSpace,targetAngle);
+          break;
+        }
+        case TURN_RIGHT:{
+          float targetAngle = command % 1000;
+          Serial.print("Turning right of: ");
+          Serial.println(targetAngle);
+          turnRight(movedAngle,movedSpace,targetAngle);
+          break;
+        }
+      }
+    }
+
   }
   releaseTCP();
   return;
@@ -197,9 +242,12 @@ void loop() {
   root["leftObstacle"]  = leftObstacle;
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
+  root["lastMovementAngle"] = last_movement_angle;
+  root["lastMovementSpace"] = last_movement_space;
 
   char msg[256];
   root.printTo(msg,sizeof(msg));
-  askAndExecute(msg);
+  askAndExecute(msg,&last_movement_angle,&last_movement_space);
+  
 
 }
