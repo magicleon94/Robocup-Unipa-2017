@@ -25,7 +25,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #this should prevent errors of "already in use"
 s.bind((TCP_IP, TCP_PORT)) #bind socket
 
-BUFFER_SIZE = 200  #  BUFFER SIZE - da controllare se aumentare o diminuire
+BUFFER_SIZE = 512  #  BUFFER SIZE - da controllare se aumentare o diminuire
 # This function takes an int argument called backlog, which specifies the
 # maximum number of connections that are kept waiting if the application is
 # already busy.

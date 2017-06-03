@@ -36,17 +36,19 @@
 
 #define DEBUG_LED_WIFI      A0
 
-ESP8266 wifi(Serial1,115200);
+ESP8266 wifi(Serial1, 115200);
 MPU9250_DMP imu;
 float last_movement_angle = 0;
-float last_movement_space = 0;
+float last_movement_spaceX = 0;
+float last_movement_spaceY = 0;
+
 bool emergency_stopped = false;
 
-void setupMPU9250(){
-  if (imu.begin() != INV_SUCCESS){
-    while (1){
+void setupMPU9250() {
+  if (imu.begin() != INV_SUCCESS) {
+    while (1) {
       Serial.println("Error");
-      if (imu.begin() == INV_SUCCESS){
+      if (imu.begin() == INV_SUCCESS) {
         break;
       }
     }
@@ -59,15 +61,15 @@ void setupMPU9250(){
   imu.setAccelFSR(2);
 }
 
-void joinNetwork(){
+void joinNetwork() {
   if (wifi.joinAP(SSID, PASSWORD)) {
     Serial.print("Join AP success\r\n");
     Serial.print("IP:");
     Serial.println( wifi.getLocalIP().c_str());
-    digitalWrite(DEBUG_LED_WIFI,HIGH);
+    digitalWrite(DEBUG_LED_WIFI, HIGH);
   } else {
     Serial.print("Join AP failure\r\n");
-    digitalWrite(DEBUG_LED_WIFI,LOW);
+    digitalWrite(DEBUG_LED_WIFI, LOW);
 
   }
 
@@ -78,28 +80,24 @@ void joinNetwork(){
   }
 }
 
-void createTCP(){
+void createTCP() {
 
-  if (wifi.createTCP(SERVER_ADDR,SERVER_PORT)){
+  if (wifi.createTCP(SERVER_ADDR, SERVER_PORT)) {
     Serial.print("TCP connection successfully created\n");
-  }else{
+  } else {
     Serial.print("Error on creating TCP connection\n");
     delay(1000);
     return;
-    /*
-     * if wifi.getNowConnectAp().equals("No AP"){
-     *  joinNetwork();
-     * }
-     */
+
   }
 
 }
 
-void releaseTCP(){
+void releaseTCP() {
   if (wifi.releaseTCP()) {
-        Serial.print("release tcp ok\r\n");
+    Serial.print("release tcp ok\r\n");
   } else {
-        Serial.print("release tcp err\r\n");
+    Serial.print("release tcp err\r\n");
   }
 }
 
@@ -115,117 +113,125 @@ void setup() {
     Serial.print("to station err\r\n");
   }
 
-  pinMode(leftIR,INPUT);
-  pinMode(frontIR,INPUT);
-  pinMode(rightIR,INPUT);
-  pinMode(ENA,OUTPUT);
-  pinMode(ENB,OUTPUT);
-  pinMode(IN1,OUTPUT);
-  pinMode(IN2,OUTPUT);
-  pinMode(IN3,OUTPUT);
-  pinMode(IN4,OUTPUT);
-  pinMode(DEBUG_LED_WIFI,OUTPUT);
+  pinMode(leftIR, INPUT);
+  pinMode(frontIR, INPUT);
+  pinMode(rightIR, INPUT);
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(DEBUG_LED_WIFI, OUTPUT);
 
   setupMPU9250();
   joinNetwork();
 }
 
-void askAndExecute(char* data,float *movedAngle, float* movedSpace){
+void askAndExecute(char* data, float *movedAngle, float* movedSpaceX, float* movedSpaceY) {
   uint8_t buffer[10] = {99};
-  
-  if (wifi.getIPStatus().equals("STATUS:5")){
+
+  if (wifi.getIPStatus().equals("STATUS:5")) {
     Serial.println("Network error, reconnecting");
     joinNetwork();
     createTCP();
   }
 
   createTCP();
-  wifi.send((const uint8_t*)data,strlen(data));
-  uint32_t len = wifi.recv(buffer,sizeof(buffer),10000);
+  wifi.send((const uint8_t*)data, strlen(data));
+  uint32_t len = wifi.recv(buffer, sizeof(buffer), 10000);
 
   int command = atoi((char*)buffer);
-  switch(command){
-    
-    case FORWARD:{
-        moveForward(movedAngle,movedSpace);
-        break;
-    }
-    
-    case FORWARD_FAST:{
-        moveForwardFast(movedAngle,movedSpace);
-        break;
-    }
-    
-    case BACKWARD:{
-        moveBackward(movedAngle,movedSpace);
-        break;
-    }
-    
-    case TURN_LEFT:{
-        turnLeft(movedAngle,movedSpace);
-        break;
-    }
-    
-    case TURN_LEFT_MICRO:{
-        turnLeftMicro(movedAngle,movedSpace);
-        break;
-    }
-    
-    case TURN_RIGHT:{
-        turnRight(movedAngle,movedSpace);
-        break;
-    }
-    
-    case TURN_RIGHT_MICRO:{
-        turnRightMicro(movedAngle,movedSpace);
-        break;
-    }
-    
-    case GRAB:{
-      Serial.println("Lowering my arm");
-      break;
-    }
-    
-    case RELEASE:{
-      Serial.println("Bringing my arm up");
-      break;
-    }
+  switch (command) {
 
-    case BACKWARD_LEFT:{
-      moveBackward(movedAngle,movedSpace);
-      turnLeft(movedAngle,movedSpace);
-      break;
-    }
+    case FORWARD: {
+        moveForward(movedAngle, movedSpaceX, movedSpaceY);
+        break;
+      }
 
-    case BACKWARD_RIGHT:{
-      Serial.println("Going back and turning right");
-      moveBackward(movedAngle,movedSpace);
-      turnRight(movedAngle,movedSpace);
-      break;
-    }
+    case FORWARD_FAST: {
+        moveForwardFast(movedAngle, movedSpaceX, movedSpaceY);
+        break;
+      }
 
-    default:{
-      switch (command/1000){
-        case FORWARD:{
-          moveForward(movedAngle,movedSpace);
-          break;
-        }
-        case TURN_LEFT:{
-          float targetAngle = command % 1000;
-          Serial.print("Turning left of: ");
-          Serial.println(targetAngle);
-          turnLeft(movedAngle,movedSpace,targetAngle);
-          break;
-        }
-        case TURN_RIGHT:{
-          float targetAngle = command % 1000;
-          Serial.print("Turning right of: ");
-          Serial.println(targetAngle);
-          turnRight(movedAngle,movedSpace,targetAngle);
-          break;
+    case BACKWARD: {
+        moveBackward(movedAngle, movedSpaceX, movedSpaceY);
+        break;
+      }
+
+    case TURN_LEFT: {
+        turnLeft(movedAngle);
+        *movedSpaceX = 0;
+        *movedSpaceY = 0;
+        break;
+      }
+
+    case TURN_LEFT_MICRO: {
+        turnLeftMicro(movedAngle);
+        *movedSpaceX = 0;
+        *movedSpaceY = 0;
+        break;
+      }
+
+    case TURN_RIGHT: {
+        turnRight(movedAngle);
+        *movedSpaceX = 0;
+        *movedSpaceY = 0;
+        break;
+      }
+
+    case TURN_RIGHT_MICRO: {
+        turnRightMicro(movedAngle);
+        *movedSpaceX = 0;
+        *movedSpaceY = 0;
+        break;
+      }
+
+    case GRAB: {
+        Serial.println("Lowering my arm");
+        break;
+      }
+
+    case RELEASE: {
+        Serial.println("Bringing my arm up");
+        break;
+      }
+
+    case BACKWARD_LEFT: {
+        moveBackward(movedAngle, movedSpaceX, movedSpaceY);
+        turnLeft(movedAngle);
+        break;
+      }
+
+    case BACKWARD_RIGHT: {
+        Serial.println("Going back and turning right");
+        moveBackward(movedAngle, movedSpaceX, movedSpaceY);
+        turnRight(movedAngle);
+        break;
+      }
+
+    default: {
+        switch (command / 1000) {
+          case TURN_LEFT: {
+              float targetAngle = command % 1000;
+              Serial.print("Turning left of: ");
+              Serial.println(targetAngle);
+              turnLeft(movedAngle, targetAngle);
+              *movedSpaceX = 0;
+              *movedSpaceY = 0;
+              break;
+            }
+          case TURN_RIGHT: {
+              float targetAngle = command % 1000;
+              Serial.print("Turning right of: ");
+              Serial.println(targetAngle);
+              turnRight(movedAngle, targetAngle);
+              *movedSpaceX = 0;
+              *movedSpaceY = 0;
+              break;
+            }
         }
       }
-    }
 
   }
   releaseTCP();
@@ -243,11 +249,12 @@ void loop() {
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
   root["lastMovementAngle"] = last_movement_angle;
-  root["lastMovementSpace"] = last_movement_space;
+  root["lastMovementSpaceX"] = last_movement_spaceX;
+  root["lastMovementSpaceY"] = last_movement_spaceY;
 
-  char msg[256];
-  root.printTo(msg,sizeof(msg));
-  askAndExecute(msg,&last_movement_angle,&last_movement_space);
-  
+  char msg[512];
+  root.printTo(msg, sizeof(msg));
+  askAndExecute(msg, &last_movement_angle, &last_movement_spaceX,&last_movement_spaceY);
+
 
 }
