@@ -6,6 +6,7 @@ import socket
 from object_detection import Object, Detector, DetectorHandler
 import cv2
 import imutils
+import threading
 
 FORWARD           =     0
 FORWARD_FAST      =     1
@@ -34,6 +35,19 @@ BUFFER_SIZE = 100  #  BUFFER SIZE - da controllare se aumentare o diminuire
 # already busy.
 #s.listen(1)
 cap = cv2.VideoCapture('rtsp://@192.168.1.21/live/ch00_0', cv2.CAP_FFMPEG)
+class AcquireFrames(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+    def run(self):
+        global cap
+        global ret
+        while True:
+            ret = cap.grab()
+
+frames_grabber = AcquireFrames()
+
+frames_grabber.start()
+
 detectors = [
         Detector(Object("green")),
         Detector(Object("blue")),
@@ -50,7 +64,7 @@ print "Listening started"
 try:
     while True: # wait connection
         conn, addr = s.accept() #accept connection
-        ret, frame = cap.read()
+        ret, frame = cap.retrieve(ret)
 
         #message from the client
         message = conn.recv(BUFFER_SIZE)
