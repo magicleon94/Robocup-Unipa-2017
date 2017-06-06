@@ -17,8 +17,8 @@ class Object(object):
         elif name == "red":
             #self.min_hsv = np.array([0, 200, 0])
             #self.max_hsv = np.array([19, 255, 255])
-            self.min_hsv = np.array([146, 47, 0])
-            self.max_hsv = np.array([194, 218, 255])
+            self.min_hsv = np.array([0, 0, 28])
+            self.max_hsv = np.array([23, 32, 235])
             self.frameColor = (0, 0, 255)
 
         elif name == "yellow":
@@ -62,10 +62,11 @@ class Detector(object):
                     self.obj.type = "object"
 
                 text = self.obj.name + " " + self.obj.type
+                print text
                 #print self.bounding_box[0][0] + 200, self.bounding_box[0][1]
-                cv2.putText(frame, text,
-                            (int(self.bounding_box[0][0]), int(self.bounding_box[0][1])),
-                            cv2.FONT_HERSHEY_SIMPLEX, 3, self.obj.frameColor, 6)
+                #cv2.putText(frame, text,
+                 #           (int(self.bounding_box[0][0]), int(self.bounding_box[0][1])),
+                            #cv2.FONT_HERSHEY_SIMPLEX, 3, self.obj.frameColor, 6)
 
 
 class DetectorHandler(object):
@@ -86,9 +87,10 @@ class DetectorHandler(object):
             print "I need a target"
         else:
             text = "target: " + self.target.obj.name + " " + self.target.obj.type
-            cv2.putText(self.frame, text,
-                        (self.frame.shape[1] - 2000, self.frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,
-                        6.0, self.target.obj.frameColor, 6)
+            print text
+            # cv2.putText(self.frame, text,
+            #             (self.frame.shape[1] - 2000, self.frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,
+            #             6.0, self.target.obj.frameColor, 6)
 
             range_min = self.frame.shape[1] * 0.5 - 300
             range_max = self.frame.shape[1] * 0.5 + 300
