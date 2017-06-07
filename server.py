@@ -5,7 +5,7 @@ import json
 import socket
 import utils
 
-DEBUG = True
+DEBUG = False
 
 FORWARD           =     0
 FORWARD_FAST      =     1
@@ -19,7 +19,7 @@ RELEASE           =     11
 BACKWARD_LEFT     =     12
 BACKWARD_RIGHT    =     13
 
-TCP_IP = "192.168.1.83"
+TCP_IP = "192.168.1.234"
 TCP_PORT = 1931
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #this should prevent errors of "already in use"

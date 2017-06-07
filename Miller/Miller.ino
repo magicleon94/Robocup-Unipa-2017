@@ -6,9 +6,9 @@
 
 #include <ArduinoJson.h>
 
-#define SSID            "Leon Wireless"
-#define PASSWORD        "cipollamarrone123"
-#define SERVER_ADDR     "192.168.1.83"
+#define SSID            "ASUS"
+#define PASSWORD        "robomiller"
+#define SERVER_ADDR     "192.168.1.234"
 #define SERVER_PORT     (1931)
 
 #define FORWARD             0

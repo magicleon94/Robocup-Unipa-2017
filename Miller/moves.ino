@@ -1,6 +1,6 @@
 #define FORWARD_SPEED       240
 #define FORWARD_FAST_SPEED  255
-#define FORWARD_TIME        1000
+#define FORWARD_TIME        2000
 #define BACKWARD_SPEED      150
 #define BACKWARD_TIME       200
 #define TURNING_SPEED       100
@@ -324,13 +324,14 @@ float getDeltaAngle(unsigned long *prev_time, unsigned long curr_time) {
 }
 
 void getDeltaAll(unsigned long* prev_time, unsigned long curr_time, float *deltaAngle, float *deltaSpeedX, float *deltaSpeedY) {
-  imu.update(UPDATE_GYRO | UPDATE_ACCEL);
+  //imu.update(UPDATE_GYRO | UPDATE_ACCEL);
+  imu.update(UPDATE_ACCEL);
   float sampleY = (imu.calcAccel(imu.ay) - ACCEL_Y_BIAS) * 9.81;
   float sampleX = (imu.calcAccel(imu.ax) - ACCEL_X_BIAS) * 9.81;
-  float sampleAngle = imu.calcGyro(imu.gz);
+  //float sampleAngle = imu.calcGyro(imu.gz);
   float delta_time = (curr_time - *prev_time) / 1000.0;
   *prev_time = curr_time;
-  *deltaAngle = sampleAngle * delta_time;
+  *deltaAngle = 0; //sampleAngle * delta_time;
   *deltaSpeedX = sampleX * delta_time;
   *deltaSpeedY = sampleY * delta_time;
 }

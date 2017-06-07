@@ -3,6 +3,8 @@ import numpy as np
 import imutils
 import threading
 
+running = True
+
 def adjust_gamma(image, gamma=1.0):
 
    invGamma = 1.0 / gamma
@@ -45,12 +47,12 @@ def update(x):
 hsv_green_lower = np.array([0, 114, 34])
 hsv_green_upper = np.array([17, 220, 235])
 
-first_time = True
+
 frame = None
 ret = None
 #hsv_green_lower = cv2.cvtColor(hsv_green_lower, cv2.COLOR_BGR2HSV)
 #hsv_green_upper = cv2.cvtColor(hsv_green_upper, cv2.COLOR_BGR2HSV)
-cap = cv2.VideoCapture('rtsp://@192.168.1.245/live/ch00_0', cv2.CAP_FFMPEG)
+cap = cv2.VideoCapture('rtsp://@192.168.1.245/live/ch00_0',cv2.CAP_FFMPEG)
 
 class AcquireFrames(threading.Thread):
     def __init__(self):
@@ -59,26 +61,42 @@ class AcquireFrames(threading.Thread):
         global cap
         global frame
         global ret
-        while True:
+        global running
+        while running:
             ret = cap.grab()
+        cap.release()
+
+cv2.namedWindow('mask')
+cv2.namedWindow('img')
+
+cv2.createTrackbar('H_LOW' , 'mask', hsv_green_lower[0], 255, update)
+cv2.createTrackbar('H_HIGH', 'mask', hsv_green_upper[0], 255, update)
+
+cv2.createTrackbar('S_LOW' , 'mask', hsv_green_lower[1], 255, update)
+cv2.createTrackbar('S_HIGH', 'mask', hsv_green_upper[1], 255, update)
+
+cv2.createTrackbar('V_LOW' , 'mask', hsv_green_lower[2], 255, update)
+cv2.createTrackbar('V_HIGH', 'mask', hsv_green_upper[2], 255, update)
+
 
 frames_grabber = AcquireFrames()
-
 frames_grabber.start()
 
 while(True):
     #frame = cv2.imread('immagini/50cm.jpg', 1)
-    if ret is None:
-        print "Ret is none"
-        continue
-    ret, frame = cap.retrieve(ret)
-    if frame is None:
-        print "Frame is none"
-        continue
-    frame = imutils.resize(frame, width=600)
+    # if ret is None:
+    #     print "Ret is none"
+    #     continue
+    # ret, frame = cap.retrieve(ret)
+    # try:
+    #     frame = imutils.resize(frame, width=600)
+    # except AttributeError:
+    #     continue
     # blurred = cv2.GaussianBlur(frame, (11, 11), 0)
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
+    _, frame = cap.retrieve(ret)
+    if frame is None:
+        continue
+    hsv = frame
     # construct a mask for the color "green", then perform
     # a series of dilations and erosions to remove any small
     # blobs left in the mask
@@ -89,21 +107,21 @@ while(True):
 
     #cv2.imshow('mask', mask)
     #cv2.imshow('img', frame)
-    cv2.namedWindow('mask')
-    cv2.namedWindow('img')
-
-
-
-    if first_time:
-        first_time = False
-        cv2.createTrackbar('H_LOW' , 'mask', hsv_green_lower[0], 255, update)
-        cv2.createTrackbar('H_HIGH', 'mask', hsv_green_upper[0], 255, update)
-
-        cv2.createTrackbar('S_LOW' , 'mask', hsv_green_lower[1], 255, update)
-        cv2.createTrackbar('S_HIGH', 'mask', hsv_green_upper[1], 255, update)
-
-        cv2.createTrackbar('V_LOW' , 'mask', hsv_green_lower[2], 255, update)
-        cv2.createTrackbar('V_HIGH', 'mask', hsv_green_upper[2], 255, update)
+    # cv2.namedWindow('mask')
+    # cv2.namedWindow('img')
+    #
+    #
+    #
+    # if first_time:
+    #     first_time = False
+    #     cv2.createTrackbar('H_LOW' , 'mask', hsv_green_lower[0], 255, update)
+    #     cv2.createTrackbar('H_HIGH', 'mask', hsv_green_upper[0], 255, update)
+    #
+    #     cv2.createTrackbar('S_LOW' , 'mask', hsv_green_lower[1], 255, update)
+    #     cv2.createTrackbar('S_HIGH', 'mask', hsv_green_upper[1], 255, update)
+    #
+    #     cv2.createTrackbar('V_LOW' , 'mask', hsv_green_lower[2], 255, update)
+    #     cv2.createTrackbar('V_HIGH', 'mask', hsv_green_upper[2], 255, update)
 
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     center = None
@@ -125,7 +143,7 @@ while(True):
             cv2.circle(frame, (int(x), int(y)), int(radius),
                        (0, 255, 255), 2)
             cv2.circle(frame, center, 5, (0, 0, 255), -1)
-
+    #frame = imutils.resize(frame, width=600)
     cv2.imshow('mask', mask)
     cv2.imshow('img', frame)
     #cv2.waitKey(0)
@@ -136,4 +154,5 @@ while(True):
 
 #cap.release()
 cv2.destroyAllWindows()
+running = False
 #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))

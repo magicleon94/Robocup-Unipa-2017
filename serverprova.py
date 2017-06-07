@@ -5,8 +5,9 @@ import json
 import socket
 from object_detection import Object, Detector, DetectorHandler
 import cv2
-import imutils
 import threading
+
+running = True
 
 FORWARD           =     0
 FORWARD_FAST      =     1
@@ -23,25 +24,26 @@ BACKWARD_RIGHT    =     13
 
 
 
-TCP_IP = "192.168.1.101"
+TCP_IP = "192.168.1.234"
 TCP_PORT = 1931
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #this should prevent errors of "already in use"
 s.bind((TCP_IP, TCP_PORT)) #bind socket
 
-BUFFER_SIZE = 100  #  BUFFER SIZE - da controllare se aumentare o diminuire
+BUFFER_SIZE = 512  #  BUFFER SIZE - da controllare se aumentare o diminuire
 # This function takes an int argument called backlog, which specifies the
 # maximum number of  connections that are kept waiting if the application is
 # already busy.
-#s.listen(1)
-cap = cv2.VideoCapture('rtsp://@192.168.1.21/live/ch00_0', cv2.CAP_FFMPEG)
+s.listen(1)
+cap = cv2.VideoCapture('rtsp://@192.168.1.245/live/ch00_0', cv2.CAP_FFMPEG)
 class AcquireFrames(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
     def run(self):
         global cap
         global ret
-        while True:
+        global running
+        while running:
             ret = cap.grab()
 
 frames_grabber = AcquireFrames()
@@ -49,10 +51,7 @@ frames_grabber = AcquireFrames()
 frames_grabber.start()
 
 detectors = [
-        Detector(Object("green")),
-        Detector(Object("blue")),
-        Detector(Object("red")),
-        Detector(Object("yellow"))
+        Detector(Object("red"))
     ]
 
 detector_handler = DetectorHandler(detectors)
@@ -98,10 +97,11 @@ try:
             server_message = BACKWARD_LEFT
 
         conn.send(str(server_message))
-        frame = imutils.resize(frame, width=600)
         cv2.imshow('img', frame)
+        cv2.waitKey(1)
 except KeyboardInterrupt:
     print "Shutting down"
     s.close()
+running = False
 cap.release()
 cv2.destroyAllWindows()

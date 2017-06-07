@@ -41,11 +41,11 @@ class Detector(object):
         self.bounding_box = None
 
     def find_obj(self, frame):
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(hsv, self.obj.min_hsv, self.obj.max_hsv)
+        #hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(frame, self.obj.min_hsv, self.obj.max_hsv)
         mask = cv2.erode(mask, None, iterations=2)
         mask = cv2.dilate(mask, None, iterations=2)
-
+        cv2.imshow('mask', mask)
         cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
         if len(cnts) > 0:
@@ -64,9 +64,15 @@ class Detector(object):
                 text = self.obj.name + " " + self.obj.type
                 print text
                 #print self.bounding_box[0][0] + 200, self.bounding_box[0][1]
+<<<<<<< Updated upstream
                 #cv2.putText(frame, text,
                  #           (int(self.bounding_box[0][0]), int(self.bounding_box[0][1])),
                             #cv2.FONT_HERSHEY_SIMPLEX, 3, self.obj.frameColor, 6)
+=======
+                # cv2.putText(frame, text,
+                #             (int(self.bounding_box[0][0]), int(self.bounding_box[0][1])),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 3, self.obj.frameColor, 6)
+>>>>>>> Stashed changes
 
 
 class DetectorHandler(object):
@@ -87,10 +93,17 @@ class DetectorHandler(object):
             print "I need a target"
         else:
             text = "target: " + self.target.obj.name + " " + self.target.obj.type
+<<<<<<< Updated upstream
             print text
             # cv2.putText(self.frame, text,
             #             (self.frame.shape[1] - 2000, self.frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,
             #             6.0, self.target.obj.frameColor, 6)
+=======
+            # cv2.putText(self.frame, text,
+            #             (self.frame.shape[1] - 2000, self.frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,
+            #             6.0, self.target.obj.frameColor, 6)
+            print text
+>>>>>>> Stashed changes
 
             range_min = self.frame.shape[1] * 0.5 - 300
             range_max = self.frame.shape[1] * 0.5 + 300
@@ -177,5 +190,3 @@ if __name__ == '__main__':
     #         cv2.circle(frame, (int(x), int(y)), int(radius), obj.frameColor, 2)
     #         cv2.circle(frame, center, 5, obj.frameColor, -1)
     #         return center
-
-
