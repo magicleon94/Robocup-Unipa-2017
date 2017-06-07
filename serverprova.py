@@ -50,9 +50,7 @@ frames_grabber = AcquireFrames()
 
 frames_grabber.start()
 
-detectors = [
-        Detector(Object("red"))
-    ]
+detectors = [Detector(Object("red"))]
 
 detector_handler = DetectorHandler(detectors)
 
@@ -81,10 +79,13 @@ try:
         rightObstacle = input_dictionary["rightObstacle"] == 0
 
         if not leftObstacle and not rightObstacle and not frontObstacle:
-            detector_handler.update(frame)
-            detector_handler.find_target()
-            if detector_handler.target:
-                server_message = detector_handler.do_action()
+            if frame is not None:
+                detector_handler.update(frame)
+                detector_handler.find_target()
+                if detector_handler.target:
+                    server_message = detector_handler.do_action()
+                else:
+                    server_message = FORWARD
             else:
                 server_message = FORWARD
         elif leftObstacle and rightObstacle:

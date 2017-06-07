@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 import imutils
+import time
 import threading
+import Queue
 
 running = True
 
@@ -53,18 +55,22 @@ ret = None
 #hsv_green_lower = cv2.cvtColor(hsv_green_lower, cv2.COLOR_BGR2HSV)
 #hsv_green_upper = cv2.cvtColor(hsv_green_upper, cv2.COLOR_BGR2HSV)
 cap = cv2.VideoCapture('rtsp://@192.168.1.245/live/ch00_0',cv2.CAP_FFMPEG)
+fps = cap.set(cv2.CAP_PROP_FPS,15)
 
 class AcquireFrames(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
     def run(self):
         global cap
-        global frame
-        global ret
         global running
+        global ret
         while running:
-            ret = cap.grab()
+            ret  = cap.grab()
         cap.release()
+
+
+
+
 
 cv2.namedWindow('mask')
 cv2.namedWindow('img')
@@ -78,9 +84,9 @@ cv2.createTrackbar('S_HIGH', 'mask', hsv_green_upper[1], 255, update)
 cv2.createTrackbar('V_LOW' , 'mask', hsv_green_lower[2], 255, update)
 cv2.createTrackbar('V_HIGH', 'mask', hsv_green_upper[2], 255, update)
 
-
 frames_grabber = AcquireFrames()
 frames_grabber.start()
+
 
 while(True):
     #frame = cv2.imread('immagini/50cm.jpg', 1)
@@ -96,12 +102,11 @@ while(True):
     _, frame = cap.retrieve(ret)
     if frame is None:
         continue
-    hsv = frame
     # construct a mask for the color "green", then perform
     # a series of dilations and erosions to remove any small
     # blobs left in the mask
 
-    mask = cv2.inRange(hsv, hsv_green_lower, hsv_green_upper)
+    mask = cv2.inRange(frame, hsv_green_lower, hsv_green_upper)
     mask = cv2.erode(mask, None, iterations=2)
     mask = cv2.dilate(mask, None, iterations=2)
 

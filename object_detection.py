@@ -63,16 +63,6 @@ class Detector(object):
 
                 text = self.obj.name + " " + self.obj.type
                 print text
-                #print self.bounding_box[0][0] + 200, self.bounding_box[0][1]
-<<<<<<< Updated upstream
-                #cv2.putText(frame, text,
-                 #           (int(self.bounding_box[0][0]), int(self.bounding_box[0][1])),
-                            #cv2.FONT_HERSHEY_SIMPLEX, 3, self.obj.frameColor, 6)
-=======
-                # cv2.putText(frame, text,
-                #             (int(self.bounding_box[0][0]), int(self.bounding_box[0][1])),
-                #             cv2.FONT_HERSHEY_SIMPLEX, 3, self.obj.frameColor, 6)
->>>>>>> Stashed changes
 
 
 class DetectorHandler(object):
@@ -93,18 +83,13 @@ class DetectorHandler(object):
             print "I need a target"
         else:
             text = "target: " + self.target.obj.name + " " + self.target.obj.type
-<<<<<<< Updated upstream
             print text
             # cv2.putText(self.frame, text,
             #             (self.frame.shape[1] - 2000, self.frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,
             #             6.0, self.target.obj.frameColor, 6)
-=======
             # cv2.putText(self.frame, text,
             #             (self.frame.shape[1] - 2000, self.frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX,
             #             6.0, self.target.obj.frameColor, 6)
-            print text
->>>>>>> Stashed changes
-
             range_min = self.frame.shape[1] * 0.5 - 300
             range_max = self.frame.shape[1] * 0.5 + 300
 
@@ -117,7 +102,7 @@ class DetectorHandler(object):
             else:
                 print "vai a destra"
                 return 6
-    def update(self, frame): #aggiorna distanze e bounding box di tutti i detector #TODO
+    def update(self, frame): #aggiorna distanze e bounding box di tutti i detector
         self.target = None
         self.frame = frame
         for detector in self.detectors:
