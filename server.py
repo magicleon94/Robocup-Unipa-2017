@@ -3,23 +3,12 @@
 
 import json
 import socket
-import utils
+import constants
 
-DEBUG = False
+DEBUG = True
 
-FORWARD           =     0
-FORWARD_FAST      =     1
-BACKWARD          =     2
-TURN_LEFT         =     3
-TURN_LEFT_MICRO   =     4
-TURN_RIGHT        =     5
-TURN_RIGHT_MICRO  =     6
-GRAB              =     10
-RELEASE           =     11
-BACKWARD_LEFT     =     12
-BACKWARD_RIGHT    =     13
 
-TCP_IP = "192.168.1.234"
+TCP_IP = "192.168.1.83"
 TCP_PORT = 1931
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #this should prevent errors of "already in use"
@@ -51,15 +40,15 @@ try:
         rightObstacle = input_dictionary["rightObstacle"] == 0
         if not DEBUG:
             if not leftObstacle and not rightObstacle and not frontObstacle:
-                server_message = FORWARD
+                server_message = constants.FORWARD
             elif leftObstacle and rightObstacle:
-                server_message = BACKWARD
+                server_message = constants.BACKWARD
             elif leftObstacle:
-                server_message = TURN_RIGHT#utils.calcRotationCode(TURN_RIGHT, 45)
+                server_message = constants.TURN_RIGHT#utils.calcRotationCode(TURN_RIGHT, 45)
             elif rightObstacle:
-                server_message = TURN_LEFT#utils.calcRotationCode(TURN_LEFT, 45)
+                server_message = constants.TURN_LEFT#utils.calcRotationCode(TURN_LEFT, 45)
             else:
-                server_message = BACKWARD_LEFT#utils.calcRotationCode(TURN_RIGHT, 180)
+                server_message = constants.BACKWARD_LEFT#utils.calcRotationCode(TURN_RIGHT, 180)
             print "Responding: ", server_message
             conn.send(str(server_message))
         else:

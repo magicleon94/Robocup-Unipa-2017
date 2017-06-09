@@ -7,8 +7,18 @@ from object_detection import Object, Detector, DetectorHandler
 import cv2
 import threading
 import constants
-
 running = True
+
+
+following = False
+reached = False
+target = "orange"
+
+
+
+
+
+
 
 TCP_IP = "192.168.1.234"
 TCP_PORT = 1931
@@ -36,7 +46,7 @@ frames_grabber = AcquireFrames()
 
 frames_grabber.start()
 
-detectors = [Detector(Object("red"))]
+detectors = [Detector(Object(target))]
 
 detector_handler = DetectorHandler(detectors)
 
@@ -65,27 +75,29 @@ try:
         frontObstacle = input_dictionary["frontObstacle"] == 0
         rightObstacle = input_dictionary["rightObstacle"] == 0
 
-        if not leftObstacle and not rightObstacle and not frontObstacle:
-            if frame is not None:
-                detector_handler.update(frame)
-                detector_handler.find_target()
-                if detector_handler.target:
-                    server_message = detector_handler.do_action()
-                else:
-                    server_message = constants.FORWARD
-                cv2.imshow('img', frame)
-            else:
-                server_message = constants.FORWARD
-        elif leftObstacle and rightObstacle:
-            server_message = constants.BACKWARD_RIGHT
-        elif leftObstacle:
-            server_message = constants.TURN_RIGHT
-        elif rightObstacle:
-            server_message = constants.TURN_LEFT
-        else:
-            server_message = constants.BACKWARD_LEFT
+        if frontObstacle and target == "red":
+            print "Yay!"
+            break
 
-        conn.send(str(server_message))
+        if frame is not None:
+            detector_handler.update(frame)
+            detector_handler.find_target()
+            if detector_handler.target:
+                server_message = detector_handler.do_action()
+                following = True
+            else:
+                if not following:
+                    server_message = constants.TURN_RIGHT
+                else:
+                    following = False
+                    target = "red"
+                    server_message = constants.BACKWARD
+                    detector_handler.detectors = [Detector(Object(target))]
+
+
+            cv2.imshow('img', frame)
+
+            conn.send(str(server_message))
 
         cv2.waitKey(1)
 except KeyboardInterrupt:

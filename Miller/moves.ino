@@ -1,9 +1,9 @@
-#define FORWARD_SPEED       240
+#define FORWARD_SPEED       190
 #define FORWARD_FAST_SPEED  255
-#define FORWARD_TIME        2000
+#define FORWARD_TIME        500
 #define BACKWARD_SPEED      150
 #define BACKWARD_TIME       200
-#define TURNING_SPEED       100
+#define TURNING_SPEED       140
 #define TURNING_TIME        300
 #define TURNING_TIME_MICRO  150
 #define ACCEL_X_BIAS        -0.06
@@ -34,14 +34,16 @@ void moveForward(float* movedAngle, float *movedSpaceX, float *movedSpaceY) {
     bool rightObstacle = digitalRead(rightIR) == 0;
 
     if (leftObstacle || frontObstacle || rightObstacle) {
-      break;
+      analogWrite(ENB, 0);
+      analogWrite(ENA, 0);
+      *movedSpaceX = 0.5 * speedX * (FORWARD_TIME - (millis() - prev_time)) / 1000.0;
+      *movedSpaceY = 0.5 * speedY * (FORWARD_TIME - (millis() - prev_time)) / 1000.0;
+      return;
     } else {
-      speed += 80;
-      analogWrite(ENB, constrain(speed, 0, FORWARD_SPEED));
-      analogWrite(ENA, constrain(speed, 0, FORWARD_SPEED));
+      analogWrite(ENB, FORWARD_SPEED);
+      analogWrite(ENA, FORWARD_SPEED);
     }
     getDeltaAll(&prev_time, millis(), &deltaAngle, &deltaSpeedX, &deltaSpeedY);
-    angle += deltaAngle;
     speedX += deltaSpeedX;
     speedY += deltaSpeedY;
 

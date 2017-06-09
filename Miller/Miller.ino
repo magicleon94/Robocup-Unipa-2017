@@ -11,13 +11,14 @@
 #define SERVER_ADDR     "192.168.1.234"
 #define SERVER_PORT     (1931)
 
-#define FORWARD             0
-#define FORWARD_FAST        1
-#define BACKWARD            2
-#define TURN_LEFT           3
-#define TURN_LEFT_MICRO     4
-#define TURN_RIGHT          5
-#define TURN_RIGHT_MICRO    6
+#define NOP                 0
+#define FORWARD             1
+#define FORWARD_FAST        2
+#define BACKWARD            3
+#define TURN_LEFT           4
+#define TURN_LEFT_MICRO     5
+#define TURN_RIGHT          6
+#define TURN_RIGHT_MICRO    7
 #define GRAB                10
 #define RELEASE             11
 #define BACKWARD_LEFT       12
@@ -255,6 +256,7 @@ void loop() {
   char msg[512];
   root.printTo(msg, sizeof(msg));
   askAndExecute(msg, &last_movement_angle, &last_movement_spaceX,&last_movement_spaceY);
+  delay(500);
 
 
 }
