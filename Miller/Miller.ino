@@ -256,7 +256,5 @@ void loop() {
   char msg[512];
   root.printTo(msg, sizeof(msg));
   askAndExecute(msg, &last_movement_angle, &last_movement_spaceX,&last_movement_spaceY);
-  delay(500);
-
 
 }

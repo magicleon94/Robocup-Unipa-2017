@@ -24,7 +24,7 @@ void moveForward(float* movedAngle, float *movedSpaceX, float *movedSpaceY) {
   float angle = 0;
   float speedX = 0;
   float speedY = 0;
-  float deltaSpeedX, deltaSpeedY, deltaAngle;
+  float deltaSpeedX, deltaSpeedY;
   unsigned long prev_time = t0;
 
 
@@ -36,24 +36,22 @@ void moveForward(float* movedAngle, float *movedSpaceX, float *movedSpaceY) {
     if (leftObstacle || frontObstacle || rightObstacle) {
       analogWrite(ENB, 0);
       analogWrite(ENA, 0);
-      *movedSpaceX = 0.5 * speedX * (FORWARD_TIME - (millis() - prev_time)) / 1000.0;
-      *movedSpaceY = 0.5 * speedY * (FORWARD_TIME - (millis() - prev_time)) / 1000.0;
+      *movedSpaceX = 0.5 * speedX * (FORWARD_TIME - (millis() - prev_time)) / 100.0;
+      *movedSpaceY = 0.5 * speedY * (FORWARD_TIME - (millis() - prev_time)) / 100.0;
       return;
     } else {
       analogWrite(ENB, FORWARD_SPEED);
       analogWrite(ENA, FORWARD_SPEED);
     }
-    getDeltaAll(&prev_time, millis(), &deltaAngle, &deltaSpeedX, &deltaSpeedY);
+    getDeltaSpace(&prev_time, millis(), &deltaSpeedX, &deltaSpeedY);
     speedX += deltaSpeedX;
     speedY += deltaSpeedY;
-
-
   }
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
-  *movedAngle = angle;
-  *movedSpaceX = 0.5 * speedX * FORWARD_TIME / 1000.0;
-  *movedSpaceY = 0.5 * speedY * FORWARD_TIME / 1000.0;
+  *movedAngle = 0;
+  *movedSpaceX = 0.5 * speedX * FORWARD_TIME / 100.0;
+  *movedSpaceY = 0.5 * speedY * FORWARD_TIME / 100.0;
 }
 
 void moveForwardFast(float* movedAngle, float *movedSpaceX, float *movedSpaceY) {
@@ -87,8 +85,7 @@ void moveForwardFast(float* movedAngle, float *movedSpaceX, float *movedSpaceY) 
       analogWrite(ENB, constrain(speed, 0, FORWARD_FAST_SPEED));
       analogWrite(ENA, constrain(speed, 0, FORWARD_FAST_SPEED));
     }
-    getDeltaAll(&prev_time, millis(), &deltaAngle, &deltaSpeedX, &deltaSpeedY);
-    angle += deltaAngle;
+    getDeltaSpace(&prev_time, millis(), &deltaSpeedX, &deltaSpeedY);
     speedX += deltaSpeedX;
     speedY += deltaSpeedY;
 
@@ -96,7 +93,7 @@ void moveForwardFast(float* movedAngle, float *movedSpaceX, float *movedSpaceY) 
   }
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
-  *movedAngle = angle;
+  *movedAngle = 0;
   *movedSpaceX = 0.5 * speedX * FORWARD_TIME / 1000.0;
   *movedSpaceY = 0.5 * speedY * FORWARD_TIME / 1000.0;
 }
@@ -114,22 +111,21 @@ void moveBackward(float* movedAngle, float *movedSpaceX, float *movedSpaceY) {
   float angle = 0;
   float speedX = 0;
   float speedY = 0;
-  float deltaSpeedX, deltaSpeedY, deltaAngle;
+  float deltaSpeedX, deltaSpeedY;
   unsigned long prev_time = t0;
 
   analogWrite(ENB, BACKWARD_SPEED);
   analogWrite(ENA, BACKWARD_SPEED);
 
   while (millis() - t0 < BACKWARD_TIME) {
-    getDeltaAll(&prev_time, millis(), &deltaAngle, &deltaSpeedX, &deltaSpeedY);
-    angle += deltaAngle;
+    getDeltaSpace(&prev_time, millis(), &deltaSpeedX, &deltaSpeedY);
     speedX += deltaSpeedX;
     speedY += deltaSpeedY;
   }
 
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
-  *movedAngle = angle;
+  *movedAngle = 0;
   *movedSpaceX = 0.5 * speedX * FORWARD_TIME / 1000.0;
   *movedSpaceY = 0.5 * speedY * FORWARD_TIME / 1000.0;
 
@@ -321,19 +317,18 @@ void turnRightMicro(float* movedAngle) {
 
 float getDeltaAngle(unsigned long *prev_time, unsigned long curr_time) {
   imu.update(UPDATE_GYRO);
+  long delta_time = curr_time - *prev_time;
   *prev_time = curr_time;
-  return imu.calcGyro(imu.gz) * ((curr_time - *prev_time) / 1000.0);
+  return imu.calcGyro(imu.gz) * (delta_time / 1000.0);
 }
 
-void getDeltaAll(unsigned long* prev_time, unsigned long curr_time, float *deltaAngle, float *deltaSpeedX, float *deltaSpeedY) {
+void getDeltaSpace(unsigned long* prev_time, unsigned long curr_time, float *deltaSpeedX, float *deltaSpeedY) {
   //imu.update(UPDATE_GYRO | UPDATE_ACCEL);
   imu.update(UPDATE_ACCEL);
   float sampleY = (imu.calcAccel(imu.ay) - ACCEL_Y_BIAS) * 9.81;
   float sampleX = (imu.calcAccel(imu.ax) - ACCEL_X_BIAS) * 9.81;
-  //float sampleAngle = imu.calcGyro(imu.gz);
   float delta_time = (curr_time - *prev_time) / 1000.0;
   *prev_time = curr_time;
-  *deltaAngle = 0; //sampleAngle * delta_time;
   *deltaSpeedX = sampleX * delta_time;
   *deltaSpeedY = sampleY * delta_time;
 }
