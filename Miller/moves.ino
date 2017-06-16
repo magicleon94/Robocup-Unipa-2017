@@ -1,4 +1,4 @@
-#define FORWARD_SPEED       190
+#define FORWARD_SPEED       200
 #define FORWARD_FAST_SPEED  255
 #define FORWARD_TIME        500
 #define BACKWARD_SPEED      150
@@ -6,7 +6,7 @@
 #define TURNING_SPEED       140
 #define TURNING_TIME        300
 #define TURNING_TIME_MICRO  150
-#define ACCEL_X_BIAS        -0.06
+#define ACCEL_X_BIAS        -0.05
 #define ACCEL_Y_BIAS        -0.01
 
 void moveForward(float* movedAngle, float *movedSpaceX, float *movedSpaceY) {
@@ -27,7 +27,8 @@ void moveForward(float* movedAngle, float *movedSpaceX, float *movedSpaceY) {
   float deltaSpeedX, deltaSpeedY;
   unsigned long prev_time = t0;
 
-
+  analogWrite(ENB, FORWARD_SPEED);
+  analogWrite(ENA, FORWARD_SPEED);
   while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     bool frontObstacle = digitalRead(frontIR) == 0;
@@ -39,9 +40,6 @@ void moveForward(float* movedAngle, float *movedSpaceX, float *movedSpaceY) {
       *movedSpaceX = 0.5 * speedX * (FORWARD_TIME - (millis() - prev_time)) / 100.0;
       *movedSpaceY = 0.5 * speedY * (FORWARD_TIME - (millis() - prev_time)) / 100.0;
       return;
-    } else {
-      analogWrite(ENB, FORWARD_SPEED);
-      analogWrite(ENA, FORWARD_SPEED);
     }
     getDeltaSpace(&prev_time, millis(), &deltaSpeedX, &deltaSpeedY);
     speedX += deltaSpeedX;
@@ -332,4 +330,3 @@ void getDeltaSpace(unsigned long* prev_time, unsigned long curr_time, float *del
   *deltaSpeedX = sampleX * delta_time;
   *deltaSpeedY = sampleY * delta_time;
 }
-
