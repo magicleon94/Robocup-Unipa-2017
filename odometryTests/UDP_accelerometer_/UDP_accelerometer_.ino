@@ -22,10 +22,10 @@
 #include "ESP8266.h"
 #include <MPU9250_RegisterMap.h>
 #include <SparkFunMPU9250-DMP.h>
-#define SSID        "Leon Wireless"
-#define PASSWORD    "cipollamarrone123"
-#define HOST_NAME   "192.168.1.83"
-#define HOST_PORT   (1931)
+#define SSID        "Robot Wifi"
+#define PASSWORD    "robomiller"
+#define HOST_NAME   "192.168.1.100"
+#define HOST_PORT   (1932)
 
 
 #define ENA                 8
@@ -110,15 +110,15 @@ if (wifi.registerUDP(HOST_NAME, HOST_PORT)) {
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
 
-  analogWrite(ENB, 140);
-  analogWrite(ENA, 140);
+  analogWrite(ENB, 200);
+  analogWrite(ENA, 200);
 }
 
 void loop(void)
 {
   uint8_t buffer[128] = {0};
   imu.update(UPDATE_ACCEL);
-  double sampleY = imu.calcAccel(imu.ay);
+  double sampleY = imu.calcAccel(imu.ay) * 9.81;
   sampleY -= 0.015;
   char hello [10];
   dtostrf(sampleY, 2, 2, hello);

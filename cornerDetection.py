@@ -7,14 +7,15 @@ counter_triangle = 0
 counter_circles = 0
 
 
-frame = cv2.imread('square_front.jpg',1)
+frame = cv2.imread('circle.jpg',1)
 frame = imutils.resize(frame,height=600)
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#gray = cv2.inRange(frame, (0,0,0), (60,60,60))
 
 
-circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1.2, 100)
+circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 32.0,param1=300,param2=50,maxRadius=0,minRadius=0)
 
-canny = cv2.Canny(gray, 50, 200)
+canny = cv2.Canny(gray, 300, 700)
 
 
 image, contours, hierarchy = cv2.findContours(canny,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
