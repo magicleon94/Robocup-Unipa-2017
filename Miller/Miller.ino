@@ -6,9 +6,9 @@
 
 #include <ArduinoJson.h>
 
-#define SSID            "ASUS"
+#define SSID            "Robot Wifi"
 #define PASSWORD        "robomiller"
-#define SERVER_ADDR     "192.168.1.234"
+#define SERVER_ADDR     "192.168.1.83"
 #define SERVER_PORT     (1931)
 
 #define NOP                 0
