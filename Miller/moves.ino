@@ -1,9 +1,9 @@
-#define FORWARD_SPEED       200
+#define FORWARD_SPEED       250
 #define FORWARD_FAST_SPEED  255
-#define FORWARD_TIME        500
+#define FORWARD_TIME        540
 #define BACKWARD_SPEED      150
 #define BACKWARD_TIME       200
-#define TURNING_SPEED       140
+#define TURNING_SPEED       510
 #define TURNING_TIME        300
 #define TURNING_TIME_MICRO  150
 #define ACCEL_X_BIAS        -0.05
@@ -156,6 +156,7 @@ void turnLeft(float* movedAngle) {
   analogWrite(ENA, 0);
 
   *movedAngle =  angle;
+  delay(100);
 
 }
 
@@ -245,6 +246,7 @@ void turnRight(float* movedAngle) {
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
   *movedAngle =  angle;
+  delay(100);
 
 }
 

@@ -103,7 +103,7 @@ while(True):
     # a series of dilations and erosions to remove any small
     # blobs left in the mask
 
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     mask = cv2.inRange(frame, hsv_green_lower, hsv_green_upper)
     mask = cv2.erode(mask, None, iterations=2)

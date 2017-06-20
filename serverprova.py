@@ -7,6 +7,9 @@ from object_detection import Object, Detector, DetectorHandler
 import cv2
 import threading
 import constants
+import Planner
+
+planner = Planner.Planner()
 
 running = True
 
@@ -43,6 +46,7 @@ detector_handler = DetectorHandler(detectors)
 cv2.namedWindow('mask')
 cv2.namedWindow('img')
 
+
 print "Listening started"
 try:
     while True: # wait connection
@@ -72,16 +76,16 @@ try:
                 if detector_handler.target:
                     server_message = detector_handler.do_action()
                 else:
-                    server_message = constants.FORWARD
+                    server_message = planner.plan(leftObstacle, rightObstacle)
                 cv2.imshow('img', frame)
             else:
                 server_message = constants.FORWARD
         elif leftObstacle and rightObstacle:
             server_message = constants.BACKWARD_RIGHT
         elif leftObstacle:
-            server_message = constants.TURN_RIGHT
+            server_message = constants.TURN_RIGHT_MICRO
         elif rightObstacle:
-            server_message = constants.TURN_LEFT
+            server_message = constants.TURN_LEFT_MICRO
         else:
             server_message = constants.BACKWARD_LEFT
 

@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import imutils
-import contsants
+import constants
 
 class Object(object):
     def __init__(self, name):
@@ -100,13 +100,13 @@ class DetectorHandler(object):
             print self.frame.shape
             if range_min <= self.target.bounding_box[0][0] <= range_max:
                 print "vai avanti"
-                return contsants.FORWARD
+                return constants.FORWARD
             elif self.target.bounding_box[0][0] < range_min:
                 print "vai a sinistra"
-                return contsants.TURN_LEFT_MICRO
+                return constants.TURN_LEFT_MICRO
             else:
                 print "vai a destra"
-                return contsants.TURN_RIGHT_MICRO
+                return constants.TURN_RIGHT_MICRO
     def update(self, frame): #aggiorna distanze e bounding box di tutti i detector
         self.target = None
         self.frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)

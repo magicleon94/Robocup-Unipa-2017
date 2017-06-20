@@ -6,34 +6,39 @@
 
 #include <ArduinoJson.h>
 
-#define SSID            "Robot Wifi"
+#define SSID            "ASUS"
 #define PASSWORD        "robomiller"
-#define SERVER_ADDR     "192.168.1.83"
+#define SERVER_ADDR     "192.168.1.234"
 #define SERVER_PORT     (1931)
 
-#define NOP                 0
-#define FORWARD             1
-#define FORWARD_FAST        2
-#define BACKWARD            3
-#define TURN_LEFT           4
-#define TURN_LEFT_MICRO     5
-#define TURN_RIGHT          6
-#define TURN_RIGHT_MICRO    7
-#define GRAB                10
-#define RELEASE             11
-#define BACKWARD_LEFT       12
-#define BACKWARD_RIGHT      13
+#define NOP                     0
+#define FORWARD                 1
+#define FORWARD_FAST            2
+#define BACKWARD                3
+#define TURN_LEFT               4
+#define TURN_LEFT_MICRO         5
+#define TURN_RIGHT              6
+#define TURN_RIGHT_MICRO        7
+#define GRAB                    10
+#define RELEASE                 11
+#define BACKWARD_LEFT           12
+#define BACKWARD_RIGHT          13
+#define RIGHT_AND_FORWARD       14
+#define LEFT_AND_FORWARD        15
+#define LEFT_180_AND_FORWARD    16
+#define RIGHT_180_AND_FORWARD   17
 
-#define ENA                 8
-#define IN1                 6
-#define IN2                 7
-#define IN3                 4
-#define IN4                 5
-#define ENB                 3
 
-#define leftIR              53
-#define frontIR             22
-#define rightIR             23
+#define ENA                     8
+#define IN1                     6
+#define IN2                     7
+#define IN3                     4
+#define IN4                     5
+#define ENB                     3
+
+#define leftIR                  53
+#define frontIR                 22
+#define rightIR                 23
 
 #define DEBUG_LED_WIFI      A0
 
@@ -210,6 +215,28 @@ void askAndExecute(char* data, float *movedAngle, float* movedSpaceX, float* mov
         turnRight(movedAngle);
         break;
       }
+
+    case LEFT_AND_FORWARD: {
+        turnLeft(movedAngle);
+        moveForward(movedAngle, movedSpaceX, movedSpaceY);
+    }
+
+    case LEFT_180_AND_FORWARD: {
+      turnLeft(movedAngle);
+      turnLeft(movedAngle);
+      moveForward(movedAngle, movedSpaceX, movedSpaceY);
+    }
+
+    case RIGHT_AND_FORWARD: {
+        turnRight(movedAngle);
+        moveForward(movedAngle, movedSpaceX, movedSpaceY);
+    }
+
+    case RIGHT_180_AND_FORWARD: {
+        turnRight(movedAngle);
+        turnRight(movedAngle);
+        moveForward(movedAngle, movedSpaceX, movedSpaceY);
+    }
 
     default: {
         switch (command / 1000) {
