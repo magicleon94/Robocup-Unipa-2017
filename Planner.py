@@ -2,6 +2,8 @@
 # A* Pathfinding in Python (2.7)
 # Please give credit if used
 
+# Revised and adapted by Vizeta Team (De Gregorio- Galipo' - Palmeri)
+
 import numpy
 import heapq
 import constants
@@ -67,12 +69,12 @@ class Planner:
 #
 #x-axis
     def __init__(self):
-        self.start = (1,1)
-        self.goal  = (1,3)
+        self.start = (16,1)
+        self.goal  = (1,12)
         self.current_position = self.start
-        self.current_theta = 90
-
-        self.nmap =  numpy.array([#0     1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19
+        self.current_theta = 180
+                                #Aggiornare la mappa
+        self.nmap =  numpy.array([#0    1   2   3   4   5   6   7   8   9   10  11  12  13
                                  [10,   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],#0
                                  [10,   0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  0,  10],#1
                                  [10,   0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  0,  10],#2
@@ -92,77 +94,151 @@ class Planner:
                                  [10,   0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  0,  10],#16
                                  [10,   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]])#17
 
+        #FOR TESTING
+        #while(self.current_position != self.goal):
+        #    self.plan(False,False)
+
     def plan(self,leftObstacle,rightObstacle):
+
         if self.current_position == self.goal:
+            print "END"
             return 0
+
         try:
-            next_move = self.astar(self.nmap,self.current_position,self.goal)[-1]
+            # next_position[0] x-axis next_position[1] y-axis
+            next_position = self.astar(self.nmap,self.current_position,self.goal)[-1]
         except:
             print "No path found"
             return 0
 
-        if self.start == self.goal:
-            print "END"
-            return 0
-        dx = next_move[1]-self.current_position[1]
-        dy = next_move[0]-self.current_position[0]
+    #JUNK CODE INITIALLY current_position IS STILL EQUAL TO start
+    #    if self.start == self.goal:
+    #        print "END"
+    #        return 0
 
-        if dx > 0:
-            if self.current_theta == 0:
-                return constants.FORWARD
-            elif self.current_theta == 90:
-                return constants.RIGHT_AND_FORWARD
-            elif self.current_theta == 180:
-                if not rightObstacle:
-                    return constants.RIGHT_180_AND_FORWARD
-                if not leftObstacle:
-                    return constants.LEFT_180_AND_FORWARD
-            elif self.current_theta == 270:
-                return constants.LEFT_AND_FORWARD
+        dx = next_position[0]-self.current_position[0]
+        dy = next_position[1]-self.current_position[1]
 
-            self.current_theta = 0
+        print "-------"
+        print "Current position: " + str(self.current_position)
+        print "Current theta: " + str(self.current_theta)
+        #UPDATE POSITION
+        self.current_position = next_position
 
-        elif dx < 0:
+        server_msg = ''
+
+        if dx == -1: #GO UP
             if self.current_theta == 180:
-                return constants.FORWARD
+                print "GO UP - FORWARD"
+                server_msg = "constants.FORWARD"
+            #    return constants.FORWARD
             elif self.current_theta == 270:
-                return constants.RIGHT_AND_FORWARD
+                print "GO UP - RIGHT AND FORWARD"
+                server_msg = "constants.RIGHT_AND_FORWARD"
+                #return constants.RIGHT_AND_FORWARD
             elif self.current_theta == 0:
                 if not rightObstacle:
-                    return constants.RIGHT_180_AND_FORWARD
+                    print "GO UP - RIGHT 180 AND FORWARD"
+                    server_msg = "constants.RIGHT_180_AND_FORWARD"
+                #    return constants.RIGHT_180_AND_FORWARD
                 if not leftObstacle:
-                    return constants.LEFT_180_AND_FORWARD
-            elif self.current_theta == 90:
-                return constants.LEFT_AND_FORWARD
+                    print "GO UP - LEFT_180_AND_FORWARD"
+                    server_msg = "constants.LEFT_180_AND_FORWARD"
+                    #return constants.LEFT_180_AND_FORWARD
+                #DEVO CONSIDERARE SE HO UN OSTACOLO A SINISTRA E A DESTRA?
+                #CASOMAI VADO INDIETRO E POI GIRO...CONSIDERARE ANCHE
+                #NEGLI ALTRI CASI
+            #elif self.current_theta == 90:
+            else:
+                print "GO UP - LEFT_AND_FORWARD"
+                server_msg = "constants.LEFT_AND_FORWARD"
+                #return constants.LEFT_AND_FORWARD
 
             self.current_theta = 180
 
-        elif dy > 0:
-            if self.current_theta == 90:
-                return constants.FORWARD
+        elif dx == 1: #GO DOWN
+            if self.current_theta == 0:#180:
+                print "GO DOWN - FORWARD"
+                server_msg = "constants.FORWARD"
+                #return constants.FORWARD
+            elif self.current_theta == 90:
+                print "GO DOWN - RIGHT_AND_FORWARD"
+                server_msg = "constants.RIGHT_AND_FORWARD"
+                #return constants.RIGHT_AND_FORWARD
             elif self.current_theta == 180:
-                return constants.RIGHT_AND_FORWARD
+                if not rightObstacle:
+                    print "GO DOWN - RIGHT_180_AND_FORWARD"
+                    server_msg = "constants.RIGHT_180_AND_FORWARD"
+                    #return constants.RIGHT_180_AND_FORWARD
+                if not leftObstacle:
+                    print "GO DOWN - LEFT_180_AND_FORWARD"
+                    server_msg = "constants.LEFT_180_AND_FORWARD"
+                    #return constants.LEFT_180_AND_FORWARD
+            #elif self.current_theta == 270:
+            else:
+                print "GO DOWN - LEFT_AND_FORWARD"
+                server_msg = "constants.LEFT_AND_FORWARD"
+                #return constants.LEFT_AND_FORWARD
+
+            self.current_theta = 0
+
+        elif dy == 1: #GO RIGHT
+            if self.current_theta == 90:
+                print "GO RIGHT - FORWARD"
+                server_msg = "constants.FORWARD"
+                #return constants.FORWARD
+            elif self.current_theta == 180:
+                print "GO RIGHT - RIGHT_AND_FORWARD"
+                server_msg = "constants.RIGHT_AND_FORWARD"
+                #return constants.RIGHT_AND_FORWARD
             elif self.current_theta == 270:
                 if not rightObstacle:
-                    return constants.RIGHT_180_AND_FORWARD
+                    print "GO RIGHT - RIGHT_180_AND_FORWARD"
+                    server_msg = "constants.RIGHT_180_AND_FORWARD"
+                    #return constants.RIGHT_180_AND_FORWARD
                 if not leftObstacle:
-                    return constants.LEFT_180_AND_FORWARD
-            elif self.current_theta == 0:
-                return constants.LEFT_AND_FORWARD
+                    print "GO RIGHT - LEFT_180_AND_FORWARD"
+                    server_msg = "constants.LEFT_180_AND_FORWARD"
+                    #return constants.LEFT_180_AND_FORWARD
+            #elif self.current_theta == 0:
+            else:
+                print "GO RIGHT - LEFT_AND_FORWARD"
+                server_msg = "constants.LEFT_AND_FORWARD"
+                #return constants.LEFT_AND_FORWARD
 
             self.current_theta = 90
 
-        elif dy < 0:
+        #elif dy == -1: #GO LEFT
+        else:
             if self.current_theta == 270:
-                return constants.FORWARD
+                print "GO LEFT - FORWARD"
+                server_msg = "constants.FORWARD"
+                #return constants.FORWARD
             elif self.current_theta == 0:
-                return constants.RIGHT_AND_FORWARD
+                print "GO LEFT - RIGHT_AND_FORWARD"
+                server_msg = "constants.RIGHT_AND_FORWARD"
+                #return constants.RIGHT_AND_FORWARD
             elif self.current_theta == 90:
                 if not rightObstacle:
-                    return constants.RIGHT_180_AND_FORWARD
+                    print "GO LEFT - RIGHT_180_AND_FORWARD"
+                    server_msg = "constants.RIGHT_180_AND_FORWARD"
+                    #return constants.RIGHT_180_AND_FORWARD
                 if not leftObstacle:
-                    return constants.LEFT_180_AND_FORWARD
-            elif self.current_theta == 180:
-                return constants.LEFT_AND_FORWARD
+                    print "GO LEFT - LEFT_180_AND_FORWARD"
+                    server_msg = "constants.LEFT_180_AND_FORWARD"
+                    #return constants.LEFT_180_AND_FORWARD
+            #elif self.current_theta == 180:
+            else:
+                print "GO LEFT - LEFT_AND_FORWARD"
+                server_msg = "constants.LEFT_AND_FORWARD"
+                #return constants.LEFT_AND_FORWARD
+
             self.current_theta = 270
-        self.current_position = next_move
+
+          #else:
+        #    print "STOPPED" #current_position == goal
+        #    return 0
+
+        print "Next position: " + str(self.current_position)
+        print "Next theta: " + str(self.current_theta)
+        return server_msg
