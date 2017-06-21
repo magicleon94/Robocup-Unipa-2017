@@ -111,7 +111,7 @@ class Planner:
             print "No path found"
             return 0
 
-    #JUNK CODE INITIALLY current_position IS STILL EQUAL TO start
+    #JUNK CODE INTIALLY current_position IS STILL EQUAL TO start
     #    if self.start == self.goal:
     #        print "END"
     #        return 0
