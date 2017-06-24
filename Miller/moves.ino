@@ -9,7 +9,28 @@
 #define ACCEL_X_BIAS        -0.05
 #define ACCEL_Y_BIAS        -0.01
 
+float xOffset = -27.0;
+float yOffset = 4.0;
+
+float getCompassDegrees(){
+  imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
+  float magX = imu.calcMag(imu.mx)-xOffset; // magX is x-axis magnetic field in uT
+  float magY = imu.calcMag(imu.my)-yOffset; // magY is y-axis magnetic field in uT
+  
+  float heading = atan2(magY, magX);
+  float declinationAngle = (2.0 + (53.0 / 60.0)) / (180 / M_PI);
+  heading += declinationAngle;
+
+  if (heading < 0)
+    heading += 2 * PI;
+
+  if (heading > 2 * PI) 
+    heading -= 2 * PI;
+
+  return heading * 180/M_PI;  
+}
 void moveForward(float* movedAngle, float *movedSpaceX, float *movedSpaceY) {
+  
   uint8_t speed = 0;
 
   analogWrite(ENB, 0);

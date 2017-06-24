@@ -276,9 +276,7 @@ void loop() {
   root["leftObstacle"]  = leftObstacle;
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
-  root["lastMovementAngle"] = last_movement_angle;
-  root["lastMovementSpaceX"] = last_movement_spaceX;
-  root["lastMovementSpaceY"] = last_movement_spaceY;
+  root["degrees"] = getCompassDegrees();
 
   char msg[512];
   root.printTo(msg, sizeof(msg));

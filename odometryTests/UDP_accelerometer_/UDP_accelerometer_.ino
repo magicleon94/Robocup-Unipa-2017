@@ -22,10 +22,10 @@
 #include "ESP8266.h"
 #include <MPU9250_RegisterMap.h>
 #include <SparkFunMPU9250-DMP.h>
-#define SSID        "Robot Wifi"
+#define SSID        "ASUS"
 #define PASSWORD    "robomiller"
-#define HOST_NAME   "192.168.1.100"
-#define HOST_PORT   (1932)
+#define HOST_NAME   "192.168.1.234"
+#define HOST_PORT   (1931)
 
 
 #define ENA                 8
@@ -38,6 +38,10 @@
 #define leftIR              53
 #define frontIR             22
 #define rightIR             23
+
+float xOffset = -27.0;
+float yOffset = 4.0;
+
 ESP8266 wifi(Serial1,115200);
 MPU9250_DMP imu;
 void setupMPU9250() {
@@ -114,12 +118,28 @@ if (wifi.registerUDP(HOST_NAME, HOST_PORT)) {
   analogWrite(ENA, 200);
 }
 
+float getCompassDegrees(){
+  imu.update(UPDATE_COMPASS);
+  float magX = imu.calcMag(imu.mx)-xOffset; // magX is x-axis magnetic field in uT
+  float magY = imu.calcMag(imu.my)-yOffset; // magY is y-axis magnetic field in uT
+  
+  float heading = atan2(magY, magX);
+  float declinationAngle = (2.0 + (53.0 / 60.0)) / (180 / M_PI);
+  heading += declinationAngle;
+
+  if (heading < 0)
+    heading += 2 * PI;
+
+  if (heading > 2 * PI) 
+    heading -= 2 * PI;
+
+  return heading * 180/M_PI;  
+}
+
 void loop(void)
 {
   uint8_t buffer[128] = {0};
-  imu.update(UPDATE_ACCEL);
-  double sampleY = imu.calcAccel(imu.ay) * 9.81;
-  sampleY -= 0.015;
+  float sampleY = getCompassDegrees();
   char hello [10];
   dtostrf(sampleY, 2, 2, hello);
   wifi.send((const uint8_t*)hello, strlen(hello));

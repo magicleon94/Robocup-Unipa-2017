@@ -130,20 +130,20 @@ class Planner:
         if dx == -1: #GO UP
             if self.current_theta == 180:
                 print "GO UP - FORWARD"
-                server_msg = "constants.FORWARD"
+                server_msg = constants.FORWARD
             #    return constants.FORWARD
             elif self.current_theta == 270:
                 print "GO UP - RIGHT AND FORWARD"
-                server_msg = "constants.RIGHT_AND_FORWARD"
+                server_msg = constants.RIGHT_AND_FORWARD
                 #return constants.RIGHT_AND_FORWARD
             elif self.current_theta == 0:
                 if not rightObstacle:
                     print "GO UP - RIGHT 180 AND FORWARD"
-                    server_msg = "constants.RIGHT_180_AND_FORWARD"
+                    server_msg = constants.RIGHT_180_AND_FORWARD
                 #    return constants.RIGHT_180_AND_FORWARD
                 if not leftObstacle:
                     print "GO UP - LEFT_180_AND_FORWARD"
-                    server_msg = "constants.LEFT_180_AND_FORWARD"
+                    server_msg = constants.LEFT_180_AND_FORWARD
                     #return constants.LEFT_180_AND_FORWARD
                 #DEVO CONSIDERARE SE HO UN OSTACOLO A SINISTRA E A DESTRA?
                 #CASOMAI VADO INDIETRO E POI GIRO...CONSIDERARE ANCHE
@@ -151,7 +151,7 @@ class Planner:
             #elif self.current_theta == 90:
             else:
                 print "GO UP - LEFT_AND_FORWARD"
-                server_msg = "constants.LEFT_AND_FORWARD"
+                server_msg = constants.LEFT_AND_FORWARD
                 #return constants.LEFT_AND_FORWARD
 
             self.current_theta = 180
@@ -159,25 +159,25 @@ class Planner:
         elif dx == 1: #GO DOWN
             if self.current_theta == 0:#180:
                 print "GO DOWN - FORWARD"
-                server_msg = "constants.FORWARD"
+                server_msg = constants.FORWARD
                 #return constants.FORWARD
             elif self.current_theta == 90:
                 print "GO DOWN - RIGHT_AND_FORWARD"
-                server_msg = "constants.RIGHT_AND_FORWARD"
+                server_msg = constants.RIGHT_AND_FORWARD
                 #return constants.RIGHT_AND_FORWARD
             elif self.current_theta == 180:
                 if not rightObstacle:
                     print "GO DOWN - RIGHT_180_AND_FORWARD"
-                    server_msg = "constants.RIGHT_180_AND_FORWARD"
+                    server_msg = constants.RIGHT_180_AND_FORWARD
                     #return constants.RIGHT_180_AND_FORWARD
                 if not leftObstacle:
                     print "GO DOWN - LEFT_180_AND_FORWARD"
-                    server_msg = "constants.LEFT_180_AND_FORWARD"
+                    server_msg = constants.LEFT_180_AND_FORWARD
                     #return constants.LEFT_180_AND_FORWARD
             #elif self.current_theta == 270:
             else:
                 print "GO DOWN - LEFT_AND_FORWARD"
-                server_msg = "constants.LEFT_AND_FORWARD"
+                server_msg = constants.LEFT_AND_FORWARD
                 #return constants.LEFT_AND_FORWARD
 
             self.current_theta = 0
@@ -185,25 +185,25 @@ class Planner:
         elif dy == 1: #GO RIGHT
             if self.current_theta == 90:
                 print "GO RIGHT - FORWARD"
-                server_msg = "constants.FORWARD"
+                server_msg = constants.FORWARD
                 #return constants.FORWARD
             elif self.current_theta == 180:
                 print "GO RIGHT - RIGHT_AND_FORWARD"
-                server_msg = "constants.RIGHT_AND_FORWARD"
+                server_msg = constants.RIGHT_AND_FORWARD
                 #return constants.RIGHT_AND_FORWARD
             elif self.current_theta == 270:
                 if not rightObstacle:
                     print "GO RIGHT - RIGHT_180_AND_FORWARD"
-                    server_msg = "constants.RIGHT_180_AND_FORWARD"
+                    server_msg = constants.RIGHT_180_AND_FORWARD
                     #return constants.RIGHT_180_AND_FORWARD
                 if not leftObstacle:
                     print "GO RIGHT - LEFT_180_AND_FORWARD"
-                    server_msg = "constants.LEFT_180_AND_FORWARD"
+                    server_msg = constants.LEFT_180_AND_FORWARD
                     #return constants.LEFT_180_AND_FORWARD
             #elif self.current_theta == 0:
             else:
                 print "GO RIGHT - LEFT_AND_FORWARD"
-                server_msg = "constants.LEFT_AND_FORWARD"
+                server_msg = constants.LEFT_AND_FORWARD
                 #return constants.LEFT_AND_FORWARD
 
             self.current_theta = 90
@@ -212,25 +212,25 @@ class Planner:
         else:
             if self.current_theta == 270:
                 print "GO LEFT - FORWARD"
-                server_msg = "constants.FORWARD"
+                server_msg = constants.FORWARD
                 #return constants.FORWARD
             elif self.current_theta == 0:
                 print "GO LEFT - RIGHT_AND_FORWARD"
-                server_msg = "constants.RIGHT_AND_FORWARD"
+                server_msg = constants.RIGHT_AND_FORWARD
                 #return constants.RIGHT_AND_FORWARD
             elif self.current_theta == 90:
                 if not rightObstacle:
                     print "GO LEFT - RIGHT_180_AND_FORWARD"
-                    server_msg = "constants.RIGHT_180_AND_FORWARD"
+                    server_msg = constants.RIGHT_180_AND_FORWARD
                     #return constants.RIGHT_180_AND_FORWARD
                 if not leftObstacle:
                     print "GO LEFT - LEFT_180_AND_FORWARD"
-                    server_msg = "constants.LEFT_180_AND_FORWARD"
+                    server_msg = constants.LEFT_180_AND_FORWARD
                     #return constants.LEFT_180_AND_FORWARD
             #elif self.current_theta == 180:
             else:
                 print "GO LEFT - LEFT_AND_FORWARD"
-                server_msg = "constants.LEFT_AND_FORWARD"
+                server_msg = constants.LEFT_AND_FORWARD
                 #return constants.LEFT_AND_FORWARD
 
             self.current_theta = 270

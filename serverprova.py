@@ -76,7 +76,7 @@ try:
                 if detector_handler.target:
                     server_message = detector_handler.do_action()
                 else:
-                    server_message = planner.plan(leftObstacle, rightObstacle)
+                    server_message = constants.FORWARD#planner.plan(leftObstacle, rightObstacle)
                 cv2.imshow('img', frame)
             else:
                 server_message = constants.FORWARD
