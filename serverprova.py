@@ -1,5 +1,5 @@
-#this script accept a JSON, as a string, and send a string that contains an integer
-#that indicates the speed
+# this script accept a JSON, as a string, and send a string that contains an integer
+# that indicates the speed
 
 import json
 import socket
@@ -15,25 +15,30 @@ running = True
 
 TCP_IP = "192.168.1.86"
 TCP_PORT = 1931
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #this should prevent errors of "already in use"
-s.bind((TCP_IP, TCP_PORT)) #bind socket
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # IP .4 & TCP
+# this should prevent errors of "already in use"
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind((TCP_IP, TCP_PORT))  # bind socket
 
-BUFFER_SIZE = 512  #  BUFFER SIZE - da controllare se aumentare o diminuire
+BUFFER_SIZE = 512  # BUFFER SIZE - da controllare se aumentare o diminuire
 # This function takes an int argument called backlog, which specifies the
 # maximum number of  connections that are kept waiting if the application is
 # already busy.
 s.listen(1)
 cap = cv2.VideoCapture('rtsp://@192.168.1.245/live/ch00_0', cv2.CAP_FFMPEG)
+
+
 class AcquireFrames(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
+
     def run(self):
         global cap
         global ret
         global running
         while running:
             ret = cap.grab()
+
 
 frames_grabber = AcquireFrames()
 
@@ -47,19 +52,18 @@ cv2.namedWindow('img')
 
 print "Listening started"
 try:
-    while True: # wait connection
-        conn, addr = s.accept() #accept connection
-        #message from the client
+    while True:  # wait connection
+        conn, addr = s.accept()  # accept connection
+        # message from the client
         message = conn.recv(BUFFER_SIZE)
 
-        print message,'\n'
+        print message, '\n'
 
         if not message:
             print "There is no message"
             break
 
         ret, frame = cap.retrieve(ret)
-
 
         input_dictionary = json.loads(message)
 
@@ -73,11 +77,9 @@ try:
                 if detector_handler.target:
                     server_message = detector_handler.do_action()
                 else:
-<<<<<<< HEAD
                     server_message = planner.plan(leftObstacle, rightObstacle)
-=======
-                    server_message = constants.FORWARD  #planner.plan(leftObstacle, rightObstacle)
->>>>>>> origin/master
+                    server_message = constants.FORWARD  # planner.plan(leftObstacle, rightObstacle)
+
                 cv2.imshow('img', frame)
             else:
                 server_message = constants.FORWARD
