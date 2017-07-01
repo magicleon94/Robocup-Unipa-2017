@@ -71,17 +71,27 @@ class Detector(object):
 
 
 class DetectorHandler(object):
-    def __init__(self, detectors):
+    def __init__(self, detectors=None):
+        if detectors is None:
+            detectors = [Detector(Object("red")), Detector(Object("blue")), Detector(Object("yellow")), Detector(Object("green"))]
         self.detectors = detectors
         self.target = None
         self.frame = None
         #self.update()
 
-    def find_target(self):  #TODO
-        for detector in self.detectors:
-            if detector.bounding_box:
+    def find_target(self, color=None, type_obj="object"):
+        if color is None: # se non gli passo nessun colore da cercare, li cerco tutti
+            for detector in self.detectors:
+                if detector.bounding_box and detector.obj.type == type_obj:  # se ho rilevato qualcosa, e se e' un oggetto
+                    self.target = detector
+                    break
+        else:  # altrimenti cerco solo quel colore
+            detector = Detector(Object(color))
+            detector.find_obj(self.frame)
+            if detector.bounding_box and detector.obj.type == type_obj:  # se ho rilevato qualcosa, e se e' un oggetto
                 self.target = detector
-                break
+        if self.target:
+            print "my target is " + self.target.obj.name + " " + self.target.obj.type
 
     def do_action(self): #TODO
         if not self.target:

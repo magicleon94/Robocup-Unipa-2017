@@ -3,7 +3,7 @@
 
 import json
 import socket
-from object_detection import Object, Detector, DetectorHandler
+from DetectorHandler import DetectorHandler
 import cv2
 import threading
 import constants
@@ -13,7 +13,7 @@ planner = Planner.Planner()
 
 running = True
 
-TCP_IP = "192.168.1.234"
+TCP_IP = "192.168.1.86"
 TCP_PORT = 1931
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #this should prevent errors of "already in use"
@@ -39,9 +39,7 @@ frames_grabber = AcquireFrames()
 
 frames_grabber.start()
 
-detectors = [Detector(Object("red"))]
-
-detector_handler = DetectorHandler(detectors)
+detector_handler = DetectorHandler()
 
 cv2.namedWindow('mask')
 cv2.namedWindow('img')
@@ -71,12 +69,15 @@ try:
 
         if not leftObstacle and not rightObstacle and not frontObstacle:
             if frame is not None:
-                detector_handler.update(frame)
-                detector_handler.find_target()
+                detector_handler.find_target(frame)
                 if detector_handler.target:
                     server_message = detector_handler.do_action()
                 else:
+<<<<<<< HEAD
                     server_message = planner.plan(leftObstacle, rightObstacle)
+=======
+                    server_message = constants.FORWARD  #planner.plan(leftObstacle, rightObstacle)
+>>>>>>> origin/master
                 cv2.imshow('img', frame)
             else:
                 server_message = constants.FORWARD
