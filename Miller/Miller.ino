@@ -134,7 +134,7 @@ void setup() {
   joinNetwork();
 }
 
-void askAndExecute(char* data, float *movedAngle, float* movedSpaceX, float* movedSpaceY) {
+void askAndExecute(char* data) {
   uint8_t buffer[10] = {99};
 
   if (wifi.getIPStatus().equals("STATUS:5")) {
@@ -151,45 +151,37 @@ void askAndExecute(char* data, float *movedAngle, float* movedSpaceX, float* mov
   switch (command) {
 
     case FORWARD: {
-        moveForward(movedAngle, movedSpaceX, movedSpaceY);
+        moveForward();
         break;
       }
 
     case FORWARD_FAST: {
-        moveForwardFast(movedAngle, movedSpaceX, movedSpaceY);
+        moveForwardFast();
         break;
       }
 
     case BACKWARD: {
-        moveBackward(movedAngle, movedSpaceX, movedSpaceY);
+        moveBackward();
         break;
       }
 
     case TURN_LEFT: {
-        turnLeft(movedAngle);
-        *movedSpaceX = 0;
-        *movedSpaceY = 0;
+        turnLeft();
         break;
       }
 
     case TURN_LEFT_MICRO: {
-        turnLeftMicro(movedAngle);
-        *movedSpaceX = 0;
-        *movedSpaceY = 0;
+        turnLeftMicro();
         break;
       }
 
     case TURN_RIGHT: {
-        turnRight(movedAngle);
-        *movedSpaceX = 0;
-        *movedSpaceY = 0;
+        turnRight();
         break;
       }
 
     case TURN_RIGHT_MICRO: {
-        turnRightMicro(movedAngle);
-        *movedSpaceX = 0;
-        *movedSpaceY = 0;
+        turnRightMicro();
         break;
       }
 
@@ -204,39 +196,38 @@ void askAndExecute(char* data, float *movedAngle, float* movedSpaceX, float* mov
       }
 
     case BACKWARD_LEFT: {
-        moveBackward(movedAngle, movedSpaceX, movedSpaceY);
-        turnLeft(movedAngle);
+        moveBackward();
+        turnLeft();
         break;
       }
 
     case BACKWARD_RIGHT: {
-        Serial.println("Going back and turning right");
-        moveBackward(movedAngle, movedSpaceX, movedSpaceY);
-        turnRight(movedAngle);
+        moveBackward();
+        turnRight();
         break;
       }
 
     case LEFT_AND_FORWARD: {
-        turnLeft(movedAngle);
-        moveForward(movedAngle, movedSpaceX, movedSpaceY);
-    }
+        turnLeft();
+        moveForward();
+      }
 
     case LEFT_180_AND_FORWARD: {
-      turnLeft(movedAngle);
-      turnLeft(movedAngle);
-      moveForward(movedAngle, movedSpaceX, movedSpaceY);
-    }
+        turnLeft();
+        turnLeft();
+        moveForward();
+      }
 
     case RIGHT_AND_FORWARD: {
-        turnRight(movedAngle);
-        moveForward(movedAngle, movedSpaceX, movedSpaceY);
-    }
+        turnRight();
+        moveForward();
+      }
 
     case RIGHT_180_AND_FORWARD: {
-        turnRight(movedAngle);
-        turnRight(movedAngle);
-        moveForward(movedAngle, movedSpaceX, movedSpaceY);
-    }
+        turnRight();
+        turnRight();
+        moveForward();
+      }
 
     default: {
         switch (command / 1000) {
@@ -244,18 +235,14 @@ void askAndExecute(char* data, float *movedAngle, float* movedSpaceX, float* mov
               float targetAngle = command % 1000;
               Serial.print("Turning left of: ");
               Serial.println(targetAngle);
-              turnLeft(movedAngle, targetAngle);
-              *movedSpaceX = 0;
-              *movedSpaceY = 0;
+              turnLeft(targetAngle);
               break;
             }
           case TURN_RIGHT: {
               float targetAngle = command % 1000;
               Serial.print("Turning right of: ");
               Serial.println(targetAngle);
-              turnRight(movedAngle, targetAngle);
-              *movedSpaceX = 0;
-              *movedSpaceY = 0;
+              turnRight(targetAngle);
               break;
             }
         }
@@ -280,6 +267,6 @@ void loop() {
 
   char msg[512];
   root.printTo(msg, sizeof(msg));
-  askAndExecute(msg, &last_movement_angle, &last_movement_spaceX,&last_movement_spaceY);
+  askAndExecute(msg);
 
 }
