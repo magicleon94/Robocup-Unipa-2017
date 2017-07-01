@@ -43,6 +43,7 @@ void moveForward() {
 
   analogWrite(ENB, FORWARD_SPEED);
   analogWrite(ENA, FORWARD_SPEED);
+  long t0 = millis();
   while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     bool frontObstacle = digitalRead(frontIR) == 0;
@@ -67,7 +68,7 @@ void moveForwardFast() {
   digitalWrite(IN4, 1);
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
-
+  long t0 = millis();
   while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     bool frontObstacle = digitalRead(frontIR) == 0;
@@ -92,7 +93,7 @@ void moveBackward() {
 
   analogWrite(ENB, BACKWARD_SPEED);
   analogWrite(ENA, BACKWARD_SPEED);
-
+  long t0 = millis();
   while (millis() - t0 < BACKWARD_TIME) {
     //pass
   }
@@ -112,7 +113,7 @@ void turnLeft() {
 
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-
+  long t0 = millis();
   while (millis() - t0 < TURNING_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     if (leftObstacle) {
@@ -135,13 +136,10 @@ void turnLeft(float targetAngle) {
 
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-
-  while (angle < targetAngle) {
+  long t0 = millis();
+  while (abs(getCompassDegrees() - start_angle) < targetAngle) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     if (leftObstacle) {
-      break;
-    }
-    if (abs(getCompassDegrees - start_angle) >= targetAngle) {
       break;
     }
   }
@@ -161,7 +159,7 @@ void turnLeftMicro() {
 
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-
+  long t0 = millis();
   while (millis() - t0 < TURNING_TIME_MICRO) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     if (leftObstacle) {
@@ -184,7 +182,7 @@ void turnRight() {
 
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-
+  long t0 = millis();
   while (millis() - t0 < TURNING_TIME) {
     bool rightObstacle  = digitalRead(rightIR) == 0;
     if (rightObstacle) {
@@ -212,12 +210,9 @@ void turnRight(float targetAngle) {
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
 
-  while (1) {
+  while (abs(getCompassDegrees() - start_angle)<targetAngle) {
     bool rightObstacle  = digitalRead(rightIR) == 0;
     if (rightObstacle) {
-      break;
-    }
-    if (abs(getCompassDegrees() - start_angle) >= targetAngle) {
       break;
     }
 
@@ -240,7 +235,7 @@ void turnRightMicro() {
 
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-
+  long t0 = millis();
   while (millis() - t0 < TURNING_TIME_MICRO) {
     bool rightObstacle  = digitalRead(rightIR) == 0;
     if (rightObstacle) {

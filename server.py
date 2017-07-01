@@ -8,7 +8,7 @@ import constants
 DEBUG = True
 
 
-TCP_IP = "192.168.1.234"
+TCP_IP = "192.168.1.83"
 TCP_PORT = 1931
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #this should prevent errors of "already in use"
@@ -38,6 +38,10 @@ try:
         leftObstacle = input_dictionary["leftObstacle"] == 0
         frontObstacle = input_dictionary["frontObstacle"] == 0
         rightObstacle = input_dictionary["rightObstacle"] == 0
+        print "Left distance: ", input_dictionary['leftDistance']
+        print "Right distance: ", input_dictionary['rightDistance']
+        print "Degrees: ", input_dictionary['degrees']
+
         if not DEBUG:
             if not leftObstacle and not rightObstacle and not frontObstacle:
                 server_message = constants.FORWARD

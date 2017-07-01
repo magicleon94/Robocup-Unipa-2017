@@ -1,3 +1,5 @@
+#include <NewPing.h>
+
 #include <doxygen.h>
 #include <ESP8266.h>
 
@@ -8,7 +10,7 @@
 
 #define SSID            "ASUS"
 #define PASSWORD        "robomiller"
-#define SERVER_ADDR     "192.168.1.234"
+#define SERVER_ADDR     "192.168.1.253"
 #define SERVER_PORT     (1931)
 
 #define NOP                     0
@@ -28,7 +30,6 @@
 #define LEFT_180_AND_FORWARD    16
 #define RIGHT_180_AND_FORWARD   17
 
-
 #define ENA                     8
 #define IN1                     6
 #define IN2                     7
@@ -40,15 +41,18 @@
 #define frontIR                 22
 #define rightIR                 23
 
-#define DEBUG_LED_WIFI      A0
+#define LEFT_ECHO           10
+#define LEFT_TRIGGER        9
+#define RIGHT_ECHO          A2
+#define RIGHT_TRIGGER       A1
+
+#define DEBUG_LED_WIFI      A8
 
 ESP8266 wifi(Serial1, 115200);
 MPU9250_DMP imu;
-float last_movement_angle = 0;
-float last_movement_spaceX = 0;
-float last_movement_spaceY = 0;
+NewPing leftSonar(LEFT_TRIGGER,LEFT_ECHO,200);
+NewPing rightSonar(RIGHT_TRIGGER,RIGHT_ECHO,200);
 
-bool emergency_stopped = false;
 
 void setupMPU9250() {
   if (imu.begin() != INV_SUCCESS) {
@@ -257,12 +261,16 @@ void loop() {
   uint8_t leftObstacle  = digitalRead(leftIR);
   uint8_t frontObstacle = digitalRead(frontIR);
   uint8_t rightObstacle = digitalRead(rightIR);
+  float leftDistance = leftSonar.convert_cm(leftSonar.ping_median());
+  float rightDistance = rightSonar.convert_cm(rightSonar.ping_median());
 
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
   root["leftObstacle"]  = leftObstacle;
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
+  root["leftDistance"] = leftDistance;
+  root["rightDistance"] = rightDistance;
   root["degrees"] = getCompassDegrees();
 
   char msg[512];
