@@ -10,7 +10,7 @@
 
 #define SSID            "ASUS"
 #define PASSWORD        "robomiller"
-#define SERVER_ADDR     "192.168.1.253"
+#define SERVER_ADDR     "192.168.1.234"
 #define SERVER_PORT     (1931)
 
 #define NOP                     0
@@ -30,12 +30,12 @@
 #define LEFT_180_AND_FORWARD    16
 #define RIGHT_180_AND_FORWARD   17
 
-#define ENA                     8
-#define IN1                     6
-#define IN2                     7
-#define IN3                     4
-#define IN4                     5
-#define ENB                     3
+#define ENA                     3
+#define IN1                     5
+#define IN2                     4
+#define IN3                     7
+#define IN4                     6
+#define ENB                     8
 
 #define leftIR                  53
 #define frontIR                 22

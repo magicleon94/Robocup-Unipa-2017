@@ -1,10 +1,10 @@
-#define FORWARD_SPEED       250
+#define FORWARD_SPEED       200
 #define FORWARD_FAST_SPEED  255
 #define FORWARD_TIME        540
 #define BACKWARD_SPEED      150
 #define BACKWARD_TIME       200
-#define TURNING_SPEED       510
-#define TURNING_TIME        300
+#define TURNING_SPEED       210
+#define TURNING_TIME        250
 #define TURNING_TIME_MICRO  150
 #define ACCEL_X_BIAS        -0.05
 #define ACCEL_Y_BIAS        -0.01
@@ -30,10 +30,9 @@ float getCompassDegrees() {
   return heading * 180 / M_PI;
 }
 void moveForward() {
+  Serial.println("Forward");
 
-  uint8_t speed = 0;
-
-  analogWrite(ENB, 0);
+ analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
   digitalWrite(IN3, 0);
@@ -41,18 +40,19 @@ void moveForward() {
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
 
+  unsigned long t0 = millis();
   analogWrite(ENB, FORWARD_SPEED);
   analogWrite(ENA, FORWARD_SPEED);
-  long t0 = millis();
-  while (millis() - t0 < FORWARD_TIME) {
+
+  while (millis() - t0 < BACKWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     bool frontObstacle = digitalRead(frontIR) == 0;
     bool rightObstacle = digitalRead(rightIR) == 0;
-
-    if (leftObstacle || frontObstacle || rightObstacle) {
+    if (leftObstacle || frontObstacle || rightObstacle){
       break;
     }
   }
+
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
@@ -68,7 +68,9 @@ void moveForwardFast() {
   digitalWrite(IN4, 1);
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
-  long t0 = millis();
+  unsigned long t0 = millis();
+  analogWrite(ENB, FORWARD_FAST_SPEED);
+  analogWrite(ENA, FORWARD_FAST_SPEED);
   while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     bool frontObstacle = digitalRead(frontIR) == 0;
@@ -83,6 +85,7 @@ void moveForwardFast() {
 }
 
 void moveBackward() {
+  Serial.println("Backward");
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
@@ -91,9 +94,10 @@ void moveBackward() {
   digitalWrite(IN1, 0);
   digitalWrite(IN2, 1);
 
+  unsigned long t0 = millis();
   analogWrite(ENB, BACKWARD_SPEED);
   analogWrite(ENA, BACKWARD_SPEED);
-  long t0 = millis();
+
   while (millis() - t0 < BACKWARD_TIME) {
     //pass
   }
@@ -103,6 +107,7 @@ void moveBackward() {
 }
 
 void turnLeft() {
+  Serial.println("Left");
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
@@ -111,9 +116,10 @@ void turnLeft() {
   digitalWrite(IN1, 0);
   digitalWrite(IN2, 1);
 
+  unsigned long t0 = millis();
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-  long t0 = millis();
+
   while (millis() - t0 < TURNING_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     if (leftObstacle) {
@@ -125,6 +131,7 @@ void turnLeft() {
 }
 
 void turnLeft(float targetAngle) {
+  Serial.println("Left");
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
@@ -134,9 +141,10 @@ void turnLeft(float targetAngle) {
   digitalWrite(IN2, 1);
   float start_angle = getCompassDegrees();
 
+  unsigned long t0 = millis();
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-  long t0 = millis();
+
   while (abs(getCompassDegrees() - start_angle) < targetAngle) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     if (leftObstacle) {
@@ -149,6 +157,7 @@ void turnLeft(float targetAngle) {
 }
 
 void turnLeftMicro() {
+  Serial.println("Left Micro");
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
@@ -157,9 +166,10 @@ void turnLeftMicro() {
   digitalWrite(IN1, 0);
   digitalWrite(IN2, 1);
 
+  unsigned long t0 = millis();
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-  long t0 = millis();
+
   while (millis() - t0 < TURNING_TIME_MICRO) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     if (leftObstacle) {
@@ -172,6 +182,7 @@ void turnLeftMicro() {
 }
 
 void turnRight() {
+  Serial.println("Right");
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
@@ -180,9 +191,10 @@ void turnRight() {
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
 
+  unsigned long t0 = millis();
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-  long t0 = millis();
+
   while (millis() - t0 < TURNING_TIME) {
     bool rightObstacle  = digitalRead(rightIR) == 0;
     if (rightObstacle) {
@@ -196,6 +208,7 @@ void turnRight() {
 }
 
 void turnRight(float targetAngle) {
+  Serial.println("Right");
   targetAngle = -targetAngle;
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
@@ -224,7 +237,7 @@ void turnRight(float targetAngle) {
 }
 
 void turnRightMicro() {
-
+  Serial.println("Right micro");
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
@@ -233,9 +246,10 @@ void turnRightMicro() {
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
 
+  unsigned long t0 = millis();
   analogWrite(ENB, TURNING_SPEED);
   analogWrite(ENA, TURNING_SPEED);
-  long t0 = millis();
+
   while (millis() - t0 < TURNING_TIME_MICRO) {
     bool rightObstacle  = digitalRead(rightIR) == 0;
     if (rightObstacle) {

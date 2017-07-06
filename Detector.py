@@ -24,7 +24,6 @@ class Detector(object):
 
         while len(cnts) > 0:
             c = max(cnts, key=cv2.contourArea)
-            cnts.remove(max(cnts)) # faccio il pop dell'elemento piu' grande
             rect = cv2.minAreaRect(c)
 
             if rect[1][0] > 10:  # se l'oggetto e' sufficientemente grande lo detecto (per evitare falsi positivi)
@@ -42,3 +41,4 @@ class Detector(object):
                     text = self.obj.name + " " + self.obj.type
                     print text
                     break
+            cnts.remove(max(cnts,key=cv2.contourArea)) # faccio il pop dell'elemento piu' grande
