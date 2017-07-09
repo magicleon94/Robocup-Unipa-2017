@@ -14,12 +14,6 @@ following = False
 reached = False
 target = "orange"
 
-
-
-
-
-
-
 TCP_IP = "192.168.1.234"
 TCP_PORT = 1931
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IP .4 & TCP

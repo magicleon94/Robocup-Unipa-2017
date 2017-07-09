@@ -45,7 +45,7 @@ def reactive(leftObstacle, rightObstacle, frontObstacle):
     else:
         conn.send(str(constants.BACKWARD_LEFT))
 
-targetDegrees = constants.OBJECTS_DEGREE
+
 def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
     print "Reorienting"
     print "ToTurn: ", toTurn
@@ -67,11 +67,13 @@ def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toT
             if toTurn < -20.0:
                 conn.send(str(constants.TURN_LEFT_MICRO))
                 return True
+
             else:
                 conn.send(str(constants.TURN_LEFT))
                 return True
     print "Not reoriented"
     return False
+
 
 frames_grabber = AcquireFrames()
 frames_grabber.start()
@@ -96,25 +98,27 @@ try:
         if not message:
             print "There is no message"
             break
-
-        input_dictionary = json.loads(message)
+        somethingAtLeft = False  # 0 < input_dictionary['leftDistance'] < 10
+        somethingAtRight = False  # 0 < input_dictionary['rightDistance'] < 10
 
         leftObstacle = input_dictionary["leftObstacle"] == 0
         frontObstacle = input_dictionary["frontObstacle"] == 0
         rightObstacle = input_dictionary["rightObstacle"] == 0
-        somethingAtLeft = False#0 < input_dictionary['leftDistance'] < 10
-        somethingAtRight = False#0 < input_dictionary['rightDistance'] < 10
+        somethingAtLeft = False  # 0 < input_dictionary['leftDistance'] < 10
+        somethingAtRight = False  # 0 < input_dictionary['rightDistance'] < 10
         currentDegrees = input_dictionary['degrees']
         toTurn = targetDegrees - currentDegrees
         time.sleep(0.01)
         ret, frame = cap.retrieve()
-
+            detector_handler.find_target(
+                frame, color=targedColor, type_obj=targetType)
         # se il frame non e' nullo
         if frame is not None:
             cv2.imshow('frame', frame)
             if cv2.waitKey(0) & 0xFF == ord('q'):
                 break
-            detector_handler.find_target(frame, color=targedColor, type_obj=targetType)
+            detector_handler.find_target(
+                frame, color=targedColor, type_obj=targetType)
             print "Showing frame"
             # se trovi un target vai al target
             if detector_handler.target is not None:
@@ -123,14 +127,14 @@ try:
                 print "Going to object"
                 continue
         # se la ricerca da camera non ha prodotto risultati
-            else:
-                # se stavo seguendo il rosso aggiorna l'obiettivo
+                if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
+                    # se stavo seguendo il rosso aggiorna l'obiettivo
                 if following == True:
                     targetDegrees = constants.AREA_RED_DEGREE
                     targetType = 'area'
-                    following = False
+                    # se stavo seguendo il rosso aggiorna l'obiettivo
 
-                if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle,toTurn):
+                if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
                     continue
 
                 reactive(leftObstacle, rightObstacle, frontObstacle)
