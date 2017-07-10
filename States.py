@@ -1,7 +1,6 @@
 """
 This module containts the class that manages the state and current targets of the robot
 """
-
 import constants
 
 
