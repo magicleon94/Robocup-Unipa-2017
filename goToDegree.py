@@ -6,23 +6,21 @@ import threading
 from DetectorHandler import DetectorHandler
 import time
 
+# globals
 running = True
-
-TCP_IP = "192.168.1.234"
-TCP_PORT = 1931
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # IP .4 & TCP
-# this should prevent errors of "already in use"
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind((TCP_IP, TCP_PORT))  # bind socket
-
-BUFFER_SIZE = 512
-
 cap = cv2.VideoCapture('rtsp://@192.168.1.101/live/ch00_0', cv2.CAP_FFMPEG)
-
 ret = None
 
+# networking parameters
+TCP_IP = "192.168.1.234"
+TCP_PORT = 1931
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind((TCP_IP, TCP_PORT))  # bind socket
+BUFFER_SIZE = 512
 
-class AcquireFrames(threading.Thread):
+
+class FramesGrabber(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
@@ -78,45 +76,42 @@ def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toT
     return False
 
 
-frames_grabber = AcquireFrames()
-frames_grabber.start()
-
+frames_grabber = FramesGrabber()
 detector_handler = DetectorHandler()
 
 targetDegrees = constants.OBJECTS_DEGREE
 following = False
 targedColor = 'red'
 targetType = 'object'
+
+frames_grabber.start()
+print "Grabbing frames started"
 s.listen(1)
 print "Listening started"
 try:
-    while True:  # wait connection
-        conn, addr = s.accept()  # accept connection
-
-        # message from the client
+    while True:
+        conn, addr = s.accept()
         message = conn.recv(BUFFER_SIZE)
 
         print message, '\n'
 
-        if not message:
-            print "There is no message"
-            break
-
         input_dictionary = json.loads(message)
 
+        # IR data
         leftObstacle = input_dictionary["leftObstacle"] == 0
         frontObstacle = input_dictionary["frontObstacle"] == 0
         rightObstacle = input_dictionary["rightObstacle"] == 0
 
+        # Sonar data
         somethingAtLeft = 0 < input_dictionary['leftDistance'] < 10
         somethingAtRight = 0 < input_dictionary['rightDistance'] < 10
 
+        # Compass data
         currentDegrees = input_dictionary['degrees']
         toTurn = targetDegrees - currentDegrees
 
         ret, frame = cap.retrieve()
 
-        # se il frame non e' nullo
         if frame is not None:
             cv2.imshow('frame', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -125,13 +120,14 @@ try:
                 frame, color=targedColor, type_obj=targetType)
             print "Showing frame"
             # se trovi un target vai al target
-            if detector_handler.target is not None and not (leftObstacle or frontObstacle or rightObstacle):
-                following = True
-                conn.send(str(detector_handler.do_action()))
-                print "Going to object"
-                continue
+            if detector_handler.target is not None:
+                if not (leftObstacle or frontObstacle or rightObstacle):
+                    following = True
+                    conn.send(str(detector_handler.do_action()))
+                    print "Going to object"
+                    continue
 
-            # se la ricerca da camera non ha prodotto risultati
+            # no proper target found, adjust the orientation
             if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
                 # se stavo seguendo il rosso aggiorna l'obiettivo
                 if following:
@@ -143,18 +139,17 @@ try:
             reactive(leftObstacle, rightObstacle, frontObstacle)
 
         else:
-            conn.send('0')
+            conn.send('0')  # send NOP
             print "Frame is none"
 
 
 except KeyboardInterrupt:
     print "Shutting down"
-    running = False
-    cap.release()
-    cv2.destroyAllWindows()
-    s.close()
 
 running = False
 cap.release()
+print "Capture device released"
 cv2.destroyAllWindows()
+print "Windows cleared"
 s.close()
+print "Socket closed"
