@@ -108,7 +108,7 @@ try:
         currentDegrees = input_dictionary['degrees']
 
         targetDegrees, targetType, targetColor = states_manager.get_targets()
-        if target_color == "green":
+        if targetColor == "green":
             toTurn = 0
         else:
             toTurn = targetDegrees - currentDegrees
