@@ -1,6 +1,6 @@
-#define FORWARD_SPEED       200
+#define FORWARD_SPEED       230
 #define FORWARD_FAST_SPEED  255
-#define FORWARD_TIME        540
+#define FORWARD_TIME        700
 #define BACKWARD_SPEED      150
 #define BACKWARD_TIME       200
 #define TURNING_SPEED       210

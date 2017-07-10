@@ -20,6 +20,8 @@ BUFFER_SIZE = 512
 cap = cv2.VideoCapture('rtsp://@192.168.1.101/live/ch00_0', cv2.CAP_FFMPEG)
 
 ret = None
+
+
 class AcquireFrames(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -35,6 +37,7 @@ class AcquireFrames(threading.Thread):
 def reactive(leftObstacle, rightObstacle, frontObstacle):
     print "Reactive"
     if not leftObstacle and not rightObstacle and not frontObstacle:
+
         conn.send(str(constants.FORWARD))
     elif leftObstacle and rightObstacle:
         conn.send(str(constants.BACKWARD))
@@ -98,46 +101,47 @@ try:
         if not message:
             print "There is no message"
             break
-        somethingAtLeft = False  # 0 < input_dictionary['leftDistance'] < 10
-        somethingAtRight = False  # 0 < input_dictionary['rightDistance'] < 10
+
+        input_dictionary = json.loads(message)
 
         leftObstacle = input_dictionary["leftObstacle"] == 0
         frontObstacle = input_dictionary["frontObstacle"] == 0
         rightObstacle = input_dictionary["rightObstacle"] == 0
-        somethingAtLeft = False  # 0 < input_dictionary['leftDistance'] < 10
-        somethingAtRight = False  # 0 < input_dictionary['rightDistance'] < 10
+
+        somethingAtLeft = 0 < input_dictionary['leftDistance'] < 10
+        somethingAtRight = 0 < input_dictionary['rightDistance'] < 10
+
         currentDegrees = input_dictionary['degrees']
         toTurn = targetDegrees - currentDegrees
-        time.sleep(0.01)
+
         ret, frame = cap.retrieve()
-            detector_handler.find_target(
-                frame, color=targedColor, type_obj=targetType)
+
         # se il frame non e' nullo
         if frame is not None:
             cv2.imshow('frame', frame)
-            if cv2.waitKey(0) & 0xFF == ord('q'):
+            if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
             detector_handler.find_target(
                 frame, color=targedColor, type_obj=targetType)
             print "Showing frame"
             # se trovi un target vai al target
-            if detector_handler.target is not None:
+            if detector_handler.target is not None and not (leftObstacle or frontObstacle or rightObstacle):
                 following = True
                 conn.send(str(detector_handler.do_action()))
                 print "Going to object"
                 continue
-        # se la ricerca da camera non ha prodotto risultati
-                if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
-                    # se stavo seguendo il rosso aggiorna l'obiettivo
-                if following == True:
+
+            # se la ricerca da camera non ha prodotto risultati
+            if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
+                # se stavo seguendo il rosso aggiorna l'obiettivo
+                if following:
                     targetDegrees = constants.AREA_RED_DEGREE
                     targetType = 'area'
                     # se stavo seguendo il rosso aggiorna l'obiettivo
+                continue
 
-                if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
-                    continue
+            reactive(leftObstacle, rightObstacle, frontObstacle)
 
-                reactive(leftObstacle, rightObstacle, frontObstacle)
         else:
             conn.send('0')
             print "Frame is none"
