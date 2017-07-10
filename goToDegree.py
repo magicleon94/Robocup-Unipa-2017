@@ -35,7 +35,6 @@ class FramesGrabber(threading.Thread):
 def reactive(leftObstacle, rightObstacle, frontObstacle):
     print "Reactive"
     if not leftObstacle and not rightObstacle and not frontObstacle:
-
         conn.send(str(constants.FORWARD))
     elif leftObstacle and rightObstacle:
         conn.send(str(constants.BACKWARD))
