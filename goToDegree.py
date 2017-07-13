@@ -78,7 +78,7 @@ def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toT
 frames_grabber = FramesGrabber()
 detector_handler = DetectorHandler()
 
-targetDegrees = constants.OBJECTS_DEGREE
+targetDegrees = constants.OBJECTS_FROM_START_DEGREE
 following = False
 targedColor = 'red'
 targetType = 'object'
@@ -120,19 +120,30 @@ try:
             print "Showing frame"
             # se trovi un target vai al target
             if detector_handler.target is not None:
+                rect_width = detector_handler.target.bounding_box[1][0] * \
+                    detector_handler.target.bounding_box[1][1]
+                print "Rect area: ", rect_width
                 if not (leftObstacle or frontObstacle or rightObstacle):
                     following = True
                     conn.send(str(detector_handler.do_action()))
                     print "Going to object"
                     continue
+                else:
+                    if targetType == 'object':
+                        if rect_width > 36000 and frontObstacle:
+                            targetDegrees = constants.AREA_RED_FROM_OBJECTS_DEGREE
+                            targetType = 'area'
+                            conn.send(str(constants.GRAB))
+                            continue
+                    if targetType == 'area':
+                        if rect_width > 700 and frontObstacle:
+                            targetDegrees = constants.OBJECTS_FROM_RED_AREA_DEGREE
+                            targetType = 'object'
+                            conn.send(str(constants.RELEASE))
+                            continue
 
             # no proper target found, adjust the orientation
             if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
-                # se stavo seguendo il rosso aggiorna l'obiettivo
-                if following:
-                    targetDegrees = constants.AREA_RED_DEGREE
-                    targetType = 'area'
-                    # se stavo seguendo il rosso aggiorna l'obiettivo
                 continue
 
             reactive(leftObstacle, rightObstacle, frontObstacle)

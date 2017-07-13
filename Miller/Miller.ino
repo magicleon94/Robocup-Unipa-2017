@@ -1,3 +1,5 @@
+#include <Servo.h>
+
 #include <NewPing.h>
 
 #include <doxygen.h>
@@ -48,8 +50,11 @@
 
 #define DEBUG_LED_WIFI A8
 
+#define SERVO 11
+
 ESP8266 wifi(Serial1, 115200);
 MPU9250_DMP imu;
+Servo myservo;
 NewPing leftSonar(LEFT_TRIGGER, LEFT_ECHO, 200);
 NewPing rightSonar(RIGHT_TRIGGER, RIGHT_ECHO, 200);
 
@@ -152,6 +157,8 @@ void setup()
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
   pinMode(DEBUG_LED_WIFI, OUTPUT);
+  myservo.attach(SERVO);
+  myservo.write(180);
 
   setupMPU9250();
   joinNetwork();
@@ -221,12 +228,14 @@ void askAndExecute(char *data)
   case GRAB:
   {
     Serial.println("Lowering my arm");
+    arm_grab();
     break;
   }
 
   case RELEASE:
   {
     Serial.println("Bringing my arm up");
+    arm_release();
     break;
   }
 

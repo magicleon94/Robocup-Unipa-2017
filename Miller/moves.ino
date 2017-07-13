@@ -11,6 +11,29 @@
 
 float xOffset = -27.0;
 float yOffset = 4.0;
+bool down = false;  
+
+void arm_grab(){
+  Serial.println("grabbing");
+  if (!down){
+    for (int i=180; i>=90; i-=5){
+      myservo.write(i);
+      delay(100);
+    }
+    down = true;
+  }
+}
+
+void arm_release(){
+  Serial.println("releasing");
+  if (down){
+    for (int i=90; i<=180; i+=5){
+      myservo.write(i);
+      delay(100);
+    }
+    down = false;
+  }
+}
 
 float getCompassDegrees() {
   imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
@@ -29,6 +52,7 @@ float getCompassDegrees() {
 
   return heading * 180 / M_PI;
 }
+
 void moveForward() {
   Serial.println("Forward");
 
@@ -263,6 +287,9 @@ void turnRightMicro() {
 
 }
 
+void grab(){
+  
+}
 float getDeltaAngle(unsigned long *prev_time, unsigned long curr_time) {
   imu.update(UPDATE_GYRO);
   long delta_time = curr_time - *prev_time;

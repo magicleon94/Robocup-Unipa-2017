@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import Object
+import Thresholder
 
 
 class Detector(object):
@@ -17,9 +18,9 @@ class Detector(object):
 
     def find_obj(self, frame, type_obj="object"):
         #hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(frame, self.obj.min_hsv, self.obj.max_hsv)
-        mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=2)
+        print self.obj.min_bgr
+        print self.obj.max_bgr
+        mask = Thresholder.threshold(frame, self.obj.min_bgr, self.obj.max_bgr)
         cv2.imshow('mask', mask)
         cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL,
                                 cv2.CHAIN_APPROX_SIMPLE)[-2]
