@@ -18,9 +18,10 @@ class Detector(object):
 
     def find_obj(self, frame, type_obj="object"):
         #hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        print self.obj.min_bgr
-        print self.obj.max_bgr
-        mask = Thresholder.threshold(frame, self.obj.min_bgr, self.obj.max_bgr)
+        print self.obj.min_color
+        print self.obj.max_color
+        mask = Thresholder.threshold(
+            frame, self.obj.min_color, self.obj.max_color)
         cv2.imshow('mask', mask)
         cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL,
                                 cv2.CHAIN_APPROX_SIMPLE)[-2]
@@ -47,26 +48,28 @@ class Detector(object):
                         print text
                         break
 
+        cv2.imshow('frame', frame)
+
         # while len(cnts) > 0:
         #     c = max(cnts, key=cv2.contourArea)
-            # rect = cv2.minAreaRect(c)
+        # rect = cv2.minAreaRect(c)
 
-            # # se l'oggetto e' sufficientemente grande lo detecto (per evitare falsi positivi)
-            # if rect[1][0] > 10:
-            #     #self.bounding_box = rect
-            #     box = np.int0(cv2.boxPoints(rect))
-            #     my_type = "object"
+        # # se l'oggetto e' sufficientemente grande lo detecto (per evitare falsi positivi)
+        # if rect[1][0] > 10:
+        #     #self.bounding_box = rect
+        #     box = np.int0(cv2.boxPoints(rect))
+        #     my_type = "object"
 
-            #     if rect[1][0] > 2 * rect[1][1]:
-            #         my_type = "area"
+        #     if rect[1][0] > 2 * rect[1][1]:
+        #         my_type = "area"
 
-            #     if my_type == type_obj:  # se ho trovato l'oggetto che stavo cercando salvo i valori
-            #         self.bounding_box = rect
-            #         self.obj.type = my_type
-            #         cv2.drawContours(frame, [box], -1, self.obj.frameColor, 8)
-            #         text = self.obj.name + " " + self.obj.type
-            #         print text
-            #         break
-            #     else:
-            #         # faccio il pop dell'elemento piu' grande
-            #         cnts.remove(max(cnts, key=cv2.contourArea))
+        #     if my_type == type_obj:  # se ho trovato l'oggetto che stavo cercando salvo i valori
+        #         self.bounding_box = rect
+        #         self.obj.type = my_type
+        #         cv2.drawContours(frame, [box], -1, self.obj.frameColor, 8)
+        #         text = self.obj.name + " " + self.obj.type
+        #         print text
+        #         break
+        #     else:
+        #         # faccio il pop dell'elemento piu' grande
+        #         cnts.remove(max(cnts, key=cv2.contourArea))

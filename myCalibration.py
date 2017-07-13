@@ -2,6 +2,7 @@ import threading
 from DetectorHandler import DetectorHandler
 import cv2
 import numpy as np
+import Thresholder
 
 running = True
 
@@ -95,14 +96,8 @@ try:
         if src is None:
             print "Frame is None"
             continue
-        # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV, 0)
-        frame = normalize3D(np.copy(src))
-        mask = cv2.inRange(frame, np.array(bgr_lower), np.array(bgr_upper))
-
-        # mask = cv2.inRange(frame, np.array(
-        #     [0, 0, 26]), np.array([34, 40, 184]))
-        #mask = cv2.erode(mask, None, iterations=2)
-        #mask = cv2.dilate(mask, None, iterations=2)
+        src = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
+        mask = Thresholder.threshold(src, bgr_lower, bgr_upper)
 
         cv2.imshow('mask', mask)
         cv2.imshow('img', src)

@@ -10,7 +10,7 @@ def normalize2D(img):
 def normalize3D(frame):
     frame[:, :, 0] = normalize2D(frame[:, :, 0])
     frame[:, :, 1] = normalize2D(frame[:, :, 1])
-    frame[:, :, 2] = normalize2D(frame[:, :, 1])
+    frame[:, :, 2] = normalize2D(frame[:, :, 2])
     return frame
 
 

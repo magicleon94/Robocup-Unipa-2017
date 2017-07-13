@@ -80,7 +80,7 @@ detector_handler = DetectorHandler()
 
 targetDegrees = constants.OBJECTS_FROM_START_DEGREE
 following = False
-targedColor = 'red'
+targedColor = 'blue'
 targetType = 'object'
 
 frames_grabber.start()
@@ -112,9 +112,7 @@ try:
         ret, frame = cap.retrieve()
 
         if frame is not None:
-            cv2.imshow('frame', frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             detector_handler.find_target(
                 frame, color=targedColor, type_obj=targetType)
             print "Showing frame"
@@ -131,13 +129,13 @@ try:
                 else:
                     if targetType == 'object':
                         if rect_width > 36000 and frontObstacle:
-                            targetDegrees = constants.AREA_RED_FROM_OBJECTS_DEGREE
+                            targetDegrees = constants.AREA_BLUE_FROM_OBJECTS_DEGREE
                             targetType = 'area'
                             conn.send(str(constants.GRAB))
                             continue
                     if targetType == 'area':
                         if rect_width > 700 and frontObstacle:
-                            targetDegrees = constants.OBJECTS_FROM_RED_AREA_DEGREE
+                            targetDegrees = constants.OBJECTS_FROM_BLUE_AREA_DEGREE
                             targetType = 'object'
                             conn.send(str(constants.RELEASE))
                             continue
@@ -147,6 +145,8 @@ try:
                 continue
 
             reactive(leftObstacle, rightObstacle, frontObstacle)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
         else:
             conn.send('0')  # send NOP
