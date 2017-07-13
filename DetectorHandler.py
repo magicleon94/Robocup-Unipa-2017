@@ -30,7 +30,7 @@ class DetectorHandler(object):
         if self.target:
             print "my target is " + self.target.obj.name + " " + self.target.obj.type
 
-    def do_action(self):  # TODO
+    def do_action(self):
         if not self.target:
             print "I need a target"
         else:

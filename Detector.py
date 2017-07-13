@@ -31,12 +31,19 @@ class Detector(object):
                 rect = cv2.minAreaRect(c)
 
                 # se l'oggetto e' sufficientemente grande lo detecto (per evitare falsi positivi)
-                if rect[1][0] > 10:
+                larghezza = rect[1][0]
+                altezza = rect[1][1]
+                print "Larghezza: ", larghezza
+                print "Altezza: ", altezza
+                print "Rect: ", rect
+                print "\n"*2
+
+                if larghezza > 10:
                     #self.bounding_box = rect
                     box = np.int0(cv2.boxPoints(rect))
                     my_type = "object"
 
-                    if rect[1][0] > 2 * rect[1][1]:
+                    if larghezza >= 1.8 * altezza:
                         my_type = "area"
 
                     if my_type == type_obj:  # se ho trovato l'oggetto che stavo cercando salvo i valori
@@ -47,6 +54,8 @@ class Detector(object):
                         text = self.obj.name + " " + self.obj.type
                         print text
                         break
+                    else:
+                        print "i don't want a ", my_type
 
         cv2.imshow('frame', frame)
 
