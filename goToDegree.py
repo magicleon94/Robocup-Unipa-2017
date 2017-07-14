@@ -35,7 +35,7 @@ class FramesGrabber(threading.Thread):
 def reactive(leftObstacle, rightObstacle, frontObstacle):
     print "Reactive"
     if not leftObstacle and not rightObstacle and not frontObstacle:
-        conn.send(str(constants.FORWARD))
+        conn.send(str(constants.FORWARD_FAST))
     elif leftObstacle and rightObstacle:
         conn.send(str(constants.BACKWARD))
     elif leftObstacle:
@@ -46,16 +46,17 @@ def reactive(leftObstacle, rightObstacle, frontObstacle):
         conn.send(str(constants.BACKWARD_LEFT))
 
 
-def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
-    print "Reorienting"
+def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, t1, t2):
+
     print "ToTurn: ", toTurn
     print "Left: ", leftObstacle
     print "Right: ", rightObstacle
 
     # se non ho nulla alla mia destra ha senso orientarmi ora
     if not somethingAtRight:
-        if toTurn > 5.0 and not rightObstacle:
-            if toTurn < 20.0:
+        if toTurn > t1 and not rightObstacle:
+            print "Reorienting"
+            if toTurn < t2:
                 conn.send(str(constants.TURN_RIGHT_MICRO))
                 return True
             else:
@@ -63,8 +64,9 @@ def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toT
                 return True
     # se non ho nulla alla mia sinistra ha senso orientarmi ora
     if not somethingAtLeft:
-        if toTurn < -5.0 and not leftObstacle:
-            if toTurn < -20.0:
+        if toTurn < -t1 and not leftObstacle:
+            print "Reorienting"
+            if toTurn < -t2:
                 conn.send(str(constants.TURN_LEFT_MICRO))
                 return True
 
@@ -80,7 +82,7 @@ detector_handler = DetectorHandler()
 
 targetDegrees = constants.OBJECTS_FROM_START_DEGREE
 following = False
-targedColor = 'blue'
+targedColor = 'red'
 targetType = 'object'
 
 frames_grabber.start()
@@ -100,22 +102,28 @@ try:
         leftObstacle = input_dictionary["leftObstacle"] == 0
         frontObstacle = input_dictionary["frontObstacle"] == 0
         rightObstacle = input_dictionary["rightObstacle"] == 0
+        upObstacle = input_dictionary["upObstacle"] == 0
 
         # Sonar data
-        somethingAtLeft = 0 < input_dictionary['leftDistance'] < 10
-        somethingAtRight = 0 < input_dictionary['rightDistance'] < 10
+        somethingAtLeft = 0 < input_dictionary['leftDistance'] < 20
+        somethingAtRight = 0 < input_dictionary['rightDistance'] < 20
 
         # Compass data
         currentDegrees = input_dictionary['degrees']
         toTurn = targetDegrees - currentDegrees
 
+        print "Degrees to turn: ", toTurn
+
         ret, frame = cap.retrieve()
+
+        # if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, 5, 20):
+        # continue
 
         if frame is not None:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             detector_handler.find_target(
                 frame, color=targedColor, type_obj=targetType)
-            print "Showing frame"
+            cv2.imshow('frame', frame)
             # se trovi un target vai al target
             if detector_handler.target is not None:
                 rect_width = detector_handler.target.bounding_box[1][0] * \
@@ -128,23 +136,25 @@ try:
                     continue
                 else:
                     if targetType == 'object':
-                        if rect_width > 36000 and frontObstacle:
-                            targetDegrees = constants.AREA_BLUE_FROM_OBJECTS_DEGREE
+                        if (not upObstacle) and frontObstacle:
+                            print "grabbing object"
+                            targetDegrees = constants.AREA_RED_FROM_OBJECTS_DEGREE
                             targetType = 'area'
                             conn.send(str(constants.GRAB))
                             continue
                     if targetType == 'area':
-                        if rect_width > 700 and frontObstacle:
-                            targetDegrees = constants.OBJECTS_FROM_BLUE_AREA_DEGREE
+                        if upObstacle and frontObstacle:
+                            targetDegrees = constants.OBJECTS_FROM_RED_AREA_DEGREE
                             targetType = 'object'
                             conn.send(str(constants.RELEASE))
                             continue
 
             # no proper target found, adjust the orientation
-            if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn):
+            if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, 5, 10):
                 continue
 
             reactive(leftObstacle, rightObstacle, frontObstacle)
+
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
@@ -157,6 +167,7 @@ except KeyboardInterrupt:
     print "Shutting down"
 
 running = False
+frames_grabber.join()
 cap.release()
 print "Capture device released"
 cv2.destroyAllWindows()

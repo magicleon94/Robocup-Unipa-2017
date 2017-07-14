@@ -39,9 +39,13 @@
 #define IN4 6
 #define ENB 8
 
-#define leftIR 53
-#define frontIR 22
-#define rightIR 23
+#define C_leftIR 53
+#define C_frontIR 22
+#define C_rightIR 23
+#define C_upIR A7
+#define C_armFront
+#define C_armLeft
+#define C_armRight
 
 #define LEFT_ECHO 10
 #define LEFT_TRIGGER 9
@@ -57,6 +61,10 @@ MPU9250_DMP imu;
 Servo myservo;
 NewPing leftSonar(LEFT_TRIGGER, LEFT_ECHO, 200);
 NewPing rightSonar(RIGHT_TRIGGER, RIGHT_ECHO, 200);
+
+uint8_t leftIR = 
+uint8_t frontIR = 
+uint8_t rightIR = 
 
 void setupMPU9250()
 {
@@ -150,6 +158,7 @@ void setup()
   pinMode(leftIR, INPUT);
   pinMode(frontIR, INPUT);
   pinMode(rightIR, INPUT);
+  pinMode(upIR,INPUT);
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
   pinMode(IN1, OUTPUT);
@@ -311,6 +320,7 @@ void loop()
   uint8_t leftObstacle = digitalRead(leftIR);
   uint8_t frontObstacle = digitalRead(frontIR);
   uint8_t rightObstacle = digitalRead(rightIR);
+  uint8_t upObstacle = digitalRead(upIR);
   float leftDistance = leftSonar.convert_cm(leftSonar.ping_median());
   float rightDistance = rightSonar.convert_cm(rightSonar.ping_median());
 
@@ -319,8 +329,11 @@ void loop()
   root["leftObstacle"] = leftObstacle;
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
+  root["upObstacle"] = upObstacle;
   root["leftDistance"] = leftDistance;
   root["rightDistance"] = rightDistance;
+  
+  
   root["degrees"] = getCompassDegrees();
 
   char msg[512];

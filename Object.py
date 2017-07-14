@@ -16,8 +16,8 @@ class Object(object):
             self.frameColor = (255, 0, 0)
 
         elif name == "red":
-            self.min_color = [0, 0, 0]
-            self.max_color = [120, 22, 50]
+            self.min_color = [0, 161, 36]
+            self.max_color = [14, 255, 201]
             self.frameColor = (0, 0, 255)
 
         elif name == "yellow":

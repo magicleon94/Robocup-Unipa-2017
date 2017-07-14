@@ -1,6 +1,6 @@
-#define FORWARD_SPEED       230
-#define FORWARD_FAST_SPEED  255
-#define FORWARD_TIME        700
+#define FORWARD_SPEED       180
+#define FORWARD_FAST_SPEED  240
+#define FORWARD_TIME        500
 #define BACKWARD_SPEED      150
 #define BACKWARD_TIME       200
 #define TURNING_SPEED       210
@@ -65,10 +65,10 @@ void moveForward() {
   digitalWrite(IN2, 0);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_SPEED);
+  analogWrite(ENB, FORWARD_SPEED+15);
   analogWrite(ENA, FORWARD_SPEED);
 
-  while (millis() - t0 < BACKWARD_TIME) {
+  while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     bool frontObstacle = digitalRead(frontIR) == 0;
     bool rightObstacle = digitalRead(rightIR) == 0;
@@ -93,7 +93,7 @@ void moveForwardFast() {
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_FAST_SPEED);
+  analogWrite(ENB, FORWARD_FAST_SPEED+15);
   analogWrite(ENA, FORWARD_FAST_SPEED);
   while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
@@ -307,3 +307,18 @@ void getDeltaSpace(unsigned long* prev_time, unsigned long curr_time, float *del
   *deltaSpeedX = sampleX * delta_time;
   *deltaSpeedY = sampleY * delta_time;
 }
+
+void switchIRs(){
+  if (leftIR != C_leftIR){
+    leftIR = C_leftIR;
+    frontIR = C_frontIR;
+    rightIR = C_rightIR;
+    return;
+  }
+  
+  leftIR = C_armLeft;
+  frontIR = C_armFront;
+  rightIR = C_armRight;
+  
+}
+

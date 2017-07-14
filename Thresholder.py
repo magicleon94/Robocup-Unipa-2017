@@ -21,6 +21,6 @@ def threshold(src, lowerVals, upperVals):
 
     frame = normalize3D(np.copy(src))
     mask = cv2.inRange(frame, np.array(lowerVals), np.array(upperVals))
-    mask = cv2.erode(mask, None, iterations=2)
-    mask = cv2.dilate(mask, None, iterations=2)
+    mask = cv2.erode(mask, None, iterations=3)
+    mask = cv2.dilate(mask, None, iterations=3)
     return mask

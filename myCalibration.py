@@ -108,3 +108,4 @@ except KeyboardInterrupt:
     pass
 cv2.destroyAllWindows()
 running = False
+frames_grabber.join()
