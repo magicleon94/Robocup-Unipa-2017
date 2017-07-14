@@ -43,9 +43,9 @@
 #define C_frontIR 22
 #define C_rightIR 23
 #define C_upIR A7
-#define C_armFront
-#define C_armLeft
-#define C_armRight
+#define C_armFront A9
+#define C_armLeft 53
+#define C_armRight 23
 
 #define LEFT_ECHO 10
 #define LEFT_TRIGGER 9
@@ -238,6 +238,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Lowering my arm");
     arm_grab();
+    swichIRs();
     break;
   }
 
@@ -245,6 +246,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Bringing my arm up");
     arm_release();
+    swichIRs();
     break;
   }
 
