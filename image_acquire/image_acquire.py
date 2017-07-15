@@ -29,17 +29,15 @@ class FramesGrabber(threading.Thread):
 frames_grabber = FramesGrabber()
 
 frames_grabber.start()
-counter = 0
-target = "BLUE_OBJECT_IMAGE_"
-folder = "BLUE_OBJECT/"
+counter = 19
+target = "PHOTO_"
+folder = "PHOTOS/"
 try:
     while True:
         ret, frame = cap.retrieve()
         if frame is not None:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            mask = Thresholder.threshold(
-                frame, min_color, max_color)
-            cv2.imshow('mask', mask)
+
+            cv2.imshow('mask', frame)
             c = cv2.waitKey(0) & 0xFF
 
             if c == ord('q'):
@@ -47,7 +45,7 @@ try:
             elif c == ord('d'):
                 continue
 
-            cv2.imwrite(folder + target + str(counter) + ".jpg", mask)
+            cv2.imwrite(folder + target + str(counter) + ".jpg", frame)
             counter += 1
 except KeyboardInterrupt:
     print "Shutting down"
