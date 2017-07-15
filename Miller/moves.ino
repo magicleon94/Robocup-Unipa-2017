@@ -56,7 +56,7 @@ float getCompassDegrees() {
 void moveForward() {
   Serial.println("Forward");
 
- analogWrite(ENB, 0);
+  analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 
   digitalWrite(IN3, 0);
