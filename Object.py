@@ -14,13 +14,16 @@ class Object(object):
             self.min_color = [101, 165, 31]
             self.max_color = [233, 255, 123]
             self.frameColor = (255, 0, 0)
+            self.otherObjectColor = "yellow"
 
         elif name == "red":
             self.min_color = [0, 161, 36]
             self.max_color = [14, 255, 201]
             self.frameColor = (0, 0, 255)
+            self.otherObjectColor = "blue"
 
         elif name == "yellow":
             self.min_color = [0, 116, 88]
             self.max_color = [36, 227, 208]
             self.frameColor = (0, 255, 255)
+            self.otherObjectColor = "blue"

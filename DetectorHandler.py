@@ -18,13 +18,17 @@ class DetectorHandler(object):
         self.update(frame)
         if color is None:  # se non gli passo nessun colore da cercare, li cerco tutti
             for detector in self.detectors:
-                detector.find_obj(self.frame, type_obj)
+                rect = detector.find_obj(self.frame)
+                if rect is not None:
+                    detector.find_type(self.frame)
                 if detector.bounding_box and detector.obj.type == type_obj:  # se ho rilevato qualcosa
                     self.target = detector
                     break
         else:  # altrimenti cerco solo quel colore
             detector = Detector(Object(color))
-            detector.find_obj(self.frame, type_obj)
+            rect = detector.find_obj(self.frame)
+            if rect is not None:
+                detector.find_type(self.frame)
             if detector.bounding_box and detector.obj.type == type_obj:  # se ho rilevato qualcosa
                 self.target = detector
         if self.target:
