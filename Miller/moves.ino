@@ -65,7 +65,7 @@ void moveForward() {
   digitalWrite(IN2, 0);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_SPEED+15);
+  analogWrite(ENB, FORWARD_SPEED);
   analogWrite(ENA, FORWARD_SPEED);
 
   while (millis() - t0 < FORWARD_TIME) {
@@ -93,7 +93,7 @@ void moveForwardFast() {
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_FAST_SPEED+15);
+  analogWrite(ENB, FORWARD_FAST_SPEED);
   analogWrite(ENA, FORWARD_FAST_SPEED);
   while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;

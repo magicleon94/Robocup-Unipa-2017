@@ -62,9 +62,10 @@ Servo myservo;
 NewPing leftSonar(LEFT_TRIGGER, LEFT_ECHO, 200);
 NewPing rightSonar(RIGHT_TRIGGER, RIGHT_ECHO, 200);
 
-uint8_t leftIR = 
-uint8_t frontIR = 
-uint8_t rightIR = 
+uint8_t leftIR = C_leftIR;
+uint8_t frontIR = C_frontIR;
+uint8_t rightIR = C_rightIR;
+uint8_t upIR = C_upIR;
 
 void setupMPU9250()
 {
@@ -238,7 +239,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Lowering my arm");
     arm_grab();
-    swichIRs();
+    //swichIRs();
     break;
   }
 
@@ -246,7 +247,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Bringing my arm up");
     arm_release();
-    swichIRs();
+    //swichIRs();
     break;
   }
 
