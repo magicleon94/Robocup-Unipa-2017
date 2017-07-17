@@ -23,7 +23,7 @@ class Object(object):
             self.otherObjectColor = "blue"
 
         elif name == "yellow":
-            self.min_color = [0, 116, 88]
-            self.max_color = [36, 227, 208]
+            self.min_color = [0, 230, 127]
+            self.max_color = [95, 255, 214]
             self.frameColor = (0, 255, 255)
             self.otherObjectColor = "blue"
