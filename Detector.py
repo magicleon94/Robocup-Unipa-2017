@@ -10,15 +10,12 @@ class Detector(object):
         self.distance = None
         self.bounding_box = None
 
-
     def refresh(self):
         self.distance = None
         self.bounding_box = None
 
     def find_obj(self, frame):
         #hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        print self.obj.min_color
-        print self.obj.max_color
         mask = Thresholder.threshold(
             frame, self.obj.min_color, self.obj.max_color)
         cv2.imshow('mask', mask)
@@ -43,16 +40,13 @@ class Detector(object):
                     # cv2.drawContours(
                     #     frame, [box], -1, self.obj.frameColor, 8)
                     #text = self.obj.name + " " + self.obj.type
-                    #print text
+                    # print text
             return None
 
     def find_type(self, frame):
         other_color_detector = Detector(Object(self.obj.otherObjectColor))
         rect_other_color = other_color_detector.find_obj(frame)
-        if rect_other_color is not None: # se ha trovato l'altro colore allora e' un oggetto
+        if rect_other_color is not None:  # se ha trovato l'altro colore allora e' un oggetto
             self.obj.type = "object"
         else:
             self.obj.type = "area"
-
-
-

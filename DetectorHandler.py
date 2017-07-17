@@ -40,8 +40,8 @@ class DetectorHandler(object):
         else:
             text = "target: " + self.target.obj.name + " " + self.target.obj.type
             print text
-            range_min = self.frame.shape[1] * 0.5 - self.frame.shape[1] / 4
-            range_max = self.frame.shape[1] * 0.5 + self.frame.shape[1] / 4
+            range_min = self.frame.shape[1] * 0.5 - self.frame.shape[1] / 6
+            range_max = self.frame.shape[1] * 0.5 + self.frame.shape[1] / 6
             print self.frame.shape
             if range_min <= self.target.bounding_box[0][0] <= range_max:
                 print "vai avanti"

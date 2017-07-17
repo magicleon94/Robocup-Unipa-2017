@@ -1,8 +1,8 @@
 #define FORWARD_SPEED       180
 #define FORWARD_FAST_SPEED  240
 #define FORWARD_TIME        500
-#define BACKWARD_SPEED      150
-#define BACKWARD_TIME       200
+#define BACKWARD_SPEED      180
+#define BACKWARD_TIME       250
 #define TURNING_SPEED       210
 #define TURNING_TIME        250
 #define TURNING_TIME_MICRO  150
@@ -65,7 +65,7 @@ void moveForward() {
   digitalWrite(IN2, 0);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_SPEED);
+  analogWrite(ENB, FORWARD_SPEED+15);
   analogWrite(ENA, FORWARD_SPEED);
 
   while (millis() - t0 < FORWARD_TIME) {
@@ -93,7 +93,7 @@ void moveForwardFast() {
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_FAST_SPEED);
+  analogWrite(ENB, FORWARD_FAST_SPEED+15);
   analogWrite(ENA, FORWARD_FAST_SPEED);
   while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
