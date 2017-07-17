@@ -18,7 +18,7 @@ class Detector(object):
         #hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         mask = Thresholder.threshold(
             frame, self.obj.min_color, self.obj.max_color)
-        cv2.imshow('mask', mask)
+        cv2.imshow('mask' + self.obj.name, mask)
         cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL,
                                 cv2.CHAIN_APPROX_SIMPLE)[-2]
 

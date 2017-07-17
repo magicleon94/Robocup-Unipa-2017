@@ -10,8 +10,8 @@ class States(object):
     def __init__(self):
         self.colors = ["red", "blue", "yellow", "blue"]  # red blue yellow pill
         self.target_degrees = [constants.OBJECTS_FROM_START_DEGREE, constants.AREA_RED_FROM_OBJECTS_DEGREE,
-                               constants.OBJECTS_FROM_RED_AREA_DEGREE, constants.AREA_BLUE_FROM_OBJECTS_DEGREE,
-                               constants.OBJECTS_FROM_BLUE_AREA_DEGREE, constants.AREA_YELLOW_FROM_OBJECTS_DEGREE,
+                               constants.OBJECTS_FROM_RED_AREA_DEGREE, constants.AREA_GREEN_FROM_OBJECTS_DEGREE,
+                               constants.OBJECTS_FROM_GREEN_AREA_DEGREE, constants.AREA_YELLOW_FROM_OBJECTS_DEGREE,
                                constants.OBJECTS_FROM_YELLOW_AREA_DEGREE, constants.AREA_BLUE_FROM_OBJECTS_DEGREE]
         self.progress = 0
         self.target_color = self.colors[self.progress]

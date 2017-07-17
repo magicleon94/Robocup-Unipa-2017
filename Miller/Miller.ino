@@ -42,7 +42,7 @@
 #define C_leftIR 53
 #define C_frontIR 22
 #define C_rightIR 23
-#define C_upIR A7
+#define C_upSonar A7
 #define C_armFront A9
 #define C_armLeft 53
 #define C_armRight 23
@@ -51,21 +51,25 @@
 #define LEFT_TRIGGER 9
 #define RIGHT_ECHO A2
 #define RIGHT_TRIGGER A1
+#define UP_ECHO 13
+#define UP_TRIGGER 12
 
 #define DEBUG_LED_WIFI A8
 
 #define SERVO 11
+
 
 ESP8266 wifi(Serial1, 115200);
 MPU9250_DMP imu;
 Servo myservo;
 NewPing leftSonar(LEFT_TRIGGER, LEFT_ECHO, 200);
 NewPing rightSonar(RIGHT_TRIGGER, RIGHT_ECHO, 200);
+NewPing upSonar(UP_TRIGGER,UP_ECHO,200);
 
 uint8_t leftIR = C_leftIR;
 uint8_t frontIR = C_frontIR;
 uint8_t rightIR = C_rightIR;
-uint8_t upIR = C_upIR;
+
 
 void setupMPU9250()
 {
@@ -159,7 +163,6 @@ void setup()
   pinMode(leftIR, INPUT);
   pinMode(frontIR, INPUT);
   pinMode(rightIR, INPUT);
-  pinMode(upIR,INPUT);
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
   pinMode(IN1, OUTPUT);
@@ -323,16 +326,16 @@ void loop()
   uint8_t leftObstacle = digitalRead(leftIR);
   uint8_t frontObstacle = digitalRead(frontIR);
   uint8_t rightObstacle = digitalRead(rightIR);
-  uint8_t upObstacle = digitalRead(upIR);
   float leftDistance = leftSonar.convert_cm(leftSonar.ping_median());
   float rightDistance = rightSonar.convert_cm(rightSonar.ping_median());
+  float upDistance = upSonar.convert_cm(rightSonar.ping_median());
 
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["leftObstacle"] = leftObstacle;
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
-  root["upObstacle"] = upObstacle;
+  root["upSonar"] = upDistance;
   root["leftDistance"] = leftDistance;
   root["rightDistance"] = rightDistance;
   

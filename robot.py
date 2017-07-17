@@ -80,6 +80,7 @@ detector_handler = DetectorHandler()
 states_manager = States()
 
 following = False
+grabbed = False
 
 frames_grabber.start()
 print "Grabbing frames started"
@@ -98,16 +99,21 @@ try:
         leftObstacle = input_dictionary["leftObstacle"] == 0
         frontObstacle = input_dictionary["frontObstacle"] == 0
         rightObstacle = input_dictionary["rightObstacle"] == 0
-        upObstacle = input_dictionary["upObstacle"] == 0
+        upSonar = input_dictionary["upSonar"]
+        upObstacle = 0 < upSonar < 10
 
         # Sonar data
-        somethingAtLeft = 0 < input_dictionary['leftDistance'] < 20
-        somethingAtRight = 0 < input_dictionary['rightDistance'] < 20
+        somethingAtLeft = 0 < input_dictionary['leftDistance'] < 30
+        somethingAtRight = 0 < input_dictionary['rightDistance'] < 30
 
         # Compass data
         currentDegrees = input_dictionary['degrees']
-
+        print "Degrees: ", currentDegrees
+        print "Up Sonar: ", upSonar
         targetDegrees, targetType, targetColor = states_manager.get_targets()
+        if targetType == "area" and targetColor == "blue":
+            targetColor = "green"
+
         if targetColor == "green":
             toTurn = 0
         else:
@@ -128,26 +134,32 @@ try:
             if detector_handler.target is not None:
                 rect_area = detector_handler.target.bounding_box[1][0] * \
                     detector_handler.target.bounding_box[1][1]
+                print rect_area
                 if not (leftObstacle or frontObstacle or rightObstacle):
                     following = True
-                    conn.send(str(detector_handler.do_action()))
-                    print "Going to target"
-                    continue
+                    if grabbed:
+                        if 10 < upSonar < detector_handler.target.obj.distanceAreaRelease:
+                            conn.send(str(constants.RELEASE))
+                            grabbed = False
+                            states_manager.state_transition()
+                            continue
+                        else:
+                            conn.send(str(detector_handler.do_action()))
+                            continue
+                    else:
+                        conn.send(str(detector_handler.do_action()))
+                        print "Going to target"
+                        continue
                 else:
                     if targetType == 'object':
                         if (not upObstacle) and frontObstacle:
                             print "grabbing object"
                             states_manager.state_transition()
                             conn.send(str(constants.GRAB))
+                            grabbed = True
                             continue
                         else:
                             conn.send(str(constants.BACKWARD))
-
-                    if targetType == 'area':
-                        if upObstacle and frontObstacle:
-                            conn.send(str(constants.RELEASE))
-                            states_manager.state_transition()
-                            continue
 
             # no proper target found, adjust the orientation
             if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, 5, 20):
