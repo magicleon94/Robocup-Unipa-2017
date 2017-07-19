@@ -38,7 +38,10 @@ def reactive(leftObstacle, rightObstacle, frontObstacle, somethingAtLeft, someth
     if not leftObstacle and not rightObstacle and not frontObstacle:
         conn.send(str(constants.FORWARD_FAST))
     elif leftObstacle and rightObstacle:
-        conn.send(str(constants.BACKWARD))
+        if somethingAtRight:
+            conn.send(str(constants.BACKWARD_LEFT))
+        else:
+            conn.send(str(constants.BACKWARD_RIGHT))
     elif leftObstacle:
         conn.send(str(constants.TURN_RIGHT))
     elif rightObstacle:
