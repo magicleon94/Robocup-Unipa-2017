@@ -135,6 +135,9 @@ try:
         leftObstacle = input_dictionary["leftObstacle"] == 0
         frontObstacle = input_dictionary["frontObstacle"] == 0
         rightObstacle = input_dictionary["rightObstacle"] == 0
+        leftArmObstacle = input_dictionary["leftArmObstacle"] == 0
+        rightArmObstacle = input_dictionary["rightArmObstacle"] == 0
+
         upSonar = input_dictionary["upSonar"]
         upObstacle = 0 < upSonar < 10
 

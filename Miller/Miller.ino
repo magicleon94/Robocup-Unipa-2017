@@ -39,13 +39,13 @@
 #define IN4 6
 #define ENB 8
 
-#define C_leftIR 53
-#define C_frontIR 22
-#define C_rightIR 23
-#define C_upSonar A7
-#define C_armFront A9
-#define C_armLeft 53
-#define C_armRight 23
+#define LEFT_IR 53
+#define C_FRONT_IR 22
+#define RIGHT_IR 23
+#define UPSONAR A7
+#define ARMFRONT_IR A9
+#define ARMLEFT_IR 53
+#define ARMRIGHT_IR 23
 
 #define LEFT_ECHO 10
 #define LEFT_TRIGGER 9
@@ -58,18 +58,14 @@
 
 #define SERVO 11
 
-
 ESP8266 wifi(Serial1, 115200);
 MPU9250_DMP imu;
 Servo myservo;
 NewPing leftSonar(LEFT_TRIGGER, LEFT_ECHO, 200);
 NewPing rightSonar(RIGHT_TRIGGER, RIGHT_ECHO, 200);
-NewPing upSonar(UP_TRIGGER,UP_ECHO,200);
+NewPing upSonar(UP_TRIGGER, UP_ECHO, 200);
 
-uint8_t leftIR = C_leftIR;
-uint8_t frontIR = C_frontIR;
-uint8_t rightIR = C_rightIR;
-
+uint8_t FRONT_IR = C_FRONT_IR;
 
 void setupMPU9250()
 {
@@ -242,7 +238,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Lowering my arm");
     arm_grab();
-    //swichIRs();
+    swichIRs();
     break;
   }
 
@@ -250,7 +246,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Bringing my arm up");
     arm_release();
-    //swichIRs();
+    swichIRs();
     break;
   }
 
@@ -323,9 +319,12 @@ void askAndExecute(char *data)
 
 void loop()
 {
-  uint8_t leftObstacle = digitalRead(leftIR);
-  uint8_t frontObstacle = digitalRead(frontIR);
-  uint8_t rightObstacle = digitalRead(rightIR);
+  uint8_t leftObstacle = digitalRead(LEFT_IR);
+  uint8_t frontObstacle = digitalRead(FRONT_IR);
+  uint8_t rightObstacle = digitalRead(RIGHT_IR);
+  uint8_t leftArmObstacle = digitalRead(ARMLEFT_IR);
+  uint8_t rightArmObstacle = digitalRead(ARMRIGHT_IR);
+
   float leftDistance = leftSonar.convert_cm(leftSonar.ping_median());
   float rightDistance = rightSonar.convert_cm(rightSonar.ping_median());
   float upDistance = upSonar.convert_cm(upSonar.ping_median());
@@ -335,13 +334,14 @@ void loop()
   root["leftObstacle"] = leftObstacle;
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
+  root["leftArmObstacle"] = leftArmObstacle;
+  root["rightArmObstacle"] = rightArmObstacle;
+
   root["upSonar"] = upDistance;
   root["leftDistance"] = leftDistance;
   root["rightDistance"] = rightDistance;
-  
-  
+
   root["degrees"] = getCompassDegrees();
-  
 
   char msg[512];
   root.printTo(msg, sizeof(msg));
