@@ -10,10 +10,12 @@
                 "limitSymbolsToIncludedHeaders": false,
                 "path": [
                     "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/arduino",
-                    "/Users/magicleon/Documents/Arduino/libraries/"
+                    "/Users/magicleon/Documents/Arduino/libraries/",
+                    "${workspaceRoot}"
                 ]
             },
             "intelliSenseMode": "clang-x64"
         }
-    ]
+    ],
+    "version": 2
 }
