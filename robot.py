@@ -50,33 +50,62 @@ def reactive(leftObstacle, rightObstacle, frontObstacle, somethingAtLeft, someth
             conn.send(str(constants.BACKWARD_RIGHT))
 
 
-def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, t1, t2):
 
+
+
+###### SE L'ANGOLO AUMENTA IN SENSO ORARIO #########
+def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, t1, t2):
     print "ToTurn: ", toTurn
     # se non ho nulla alla mia destra ha senso orientarmi ora
     if not somethingAtRight:
         if toTurn > t1 and not rightObstacle:
             print "Reorienting"
             if toTurn < t2:
-                conn.send(str(constants.TURN_LEFT_MICRO))
+                conn.send(str(constants.TURN_RIGHT_MICRO))
                 return True
             else:
-                conn.send(str(constants.TURN_LEFT))
+                conn.send(str(constants.TURN_RIGHT))
                 return True
     # se non ho nulla alla mia sinistra ha senso orientarmi ora
     if not somethingAtLeft:
         if toTurn < -t1 and not leftObstacle:
             print "Reorienting"
-            if toTurn < -t2:
-                conn.send(str(constants.TURN_RIGHT_MICRO))
+            if toTurn > -t2:
+                conn.send(str(constants.TURN_LEFT_MICRO))
                 return True
 
             else:
-                conn.send(str(constants.TURN_RIGHT))
+                conn.send(str(constants.TURN_LEFT))
                 return True
     print "Not reoriented"
     return False
 
+# #### SE L'ANGOLO AUMENTA IN SENSO ANTIORARIO
+# def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, t1, t2):
+#     print "ToTurn: ", toTurn
+#     # se non ho nulla alla mia destra ha senso orientarmi ora
+#     if not somethingAtRight:
+#         if toTurn < -t1 and not rightObstacle:
+#             print "Reorienting"
+#             if toTurn > -t2:
+#                 conn.send(str(constants.TURN_RIGHT_MICRO))
+#                 return True
+#             else:
+#                 conn.send(str(constants.TURN_RIGHT))
+#                 return True
+#     # se non ho nulla alla mia sinistra ha senso orientarmi ora
+#     if not somethingAtLeft:
+#         if toTurn > t1 and not leftObstacle:
+#             print "Reorienting"
+#             if toTurn < t2:
+#                 conn.send(str(constants.TURN_LEFT_MICRO))
+#                 return True
+#
+#             else:
+#                 conn.send(str(constants.TURN_LEFT))
+#                 return True
+#     print "Not reoriented"
+#     return False
 
 frames_grabber = FramesGrabber()
 detector_handler = DetectorHandler()
@@ -122,7 +151,10 @@ try:
         if targetColor == "green":
             toTurn = 0
         else:
-            toTurn = targetDegrees - currentDegrees
+            toTurn = (targetDegrees - currentDegrees) % 360
+            #  porto toTurn nell'intervallo [-180, 180]
+            if toTurn > 180.0:
+                toTurn -= 360.0
 
         ret, frame = cap.retrieve()
 
@@ -143,9 +175,9 @@ try:
 
             # se trovi un target vai al target
             if detector_handler.target is not None:
-                rect_area = detector_handler.target.bounding_box[1][0] * \
-                    detector_handler.target.bounding_box[1][1]
-                if not (leftObstacle or frontObstacle or rightObstacle):
+                # rect_area = detector_handler.target.bounding_box[1][0] * \
+                #    detector_handler.target.bounding_box[1][1]
+                if not (leftObstacle or frontObstacle or rightObstacle):  # se non ci sono ostacoli
                     following = True
                     if grabbed:
                         if 10 < upSonar < detector_handler.target.obj.distanceAreaRelease:
@@ -155,6 +187,7 @@ try:
                             continue
                         else:
                             conn.send(str(detector_handler.do_action()))
+                            print "Going to target"
                             continue
                     else:
                         conn.send(str(detector_handler.do_action()))
@@ -168,8 +201,8 @@ try:
                             conn.send(str(constants.GRAB))
                             grabbed = True
                             continue
-                        else:
-                            conn.send(str(constants.BACKWARD))
+                        #else:
+                        #    conn.send(str(constants.BACKWARD))
 
             # no proper target found, adjust the orientation
             if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, 5, 20):
