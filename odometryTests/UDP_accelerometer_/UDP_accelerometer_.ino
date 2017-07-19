@@ -142,7 +142,8 @@ void loop(void)
   float sampleY = getCompassDegrees();
   char hello [10];
   dtostrf(sampleY, 2, 2, hello);
-  wifi.send((const uint8_t*)hello, strlen(hello));
+  Serial.println(sampleY);
+  //wifi.send((const uint8_t*)hello, strlen(hello));
   delay(200);
 }
 

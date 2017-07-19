@@ -84,7 +84,7 @@ void setupMPU9250()
       }
     }
   }
-  imu.setSensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS);
+  imu.setSensors(INV_XYZ_COMPASS);
   imu.setLPF(5);
   imu.setSampleRate(10);
   imu.setCompassSampleRate(10);
@@ -328,7 +328,7 @@ void loop()
   uint8_t rightObstacle = digitalRead(rightIR);
   float leftDistance = leftSonar.convert_cm(leftSonar.ping_median());
   float rightDistance = rightSonar.convert_cm(rightSonar.ping_median());
-  float upDistance = upSonar.convert_cm(rightSonar.ping_median());
+  float upDistance = upSonar.convert_cm(upSonar.ping_median());
 
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
@@ -341,6 +341,7 @@ void loop()
   
   
   root["degrees"] = getCompassDegrees();
+  
 
   char msg[512];
   root.printTo(msg, sizeof(msg));

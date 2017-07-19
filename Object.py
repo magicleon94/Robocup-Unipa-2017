@@ -9,7 +9,7 @@ class Object(object):
             self.min_color = [34, 50, 50]
             self.max_color = [80, 220, 200]
             self.frameColor = (0, 255, 0)
-            self.distanceAreaRelease = 70
+            self.distanceAreaRelease = 90
 
         elif name == "blue":
             self.min_color = [101, 165, 31]

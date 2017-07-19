@@ -33,7 +33,7 @@ class FramesGrabber(threading.Thread):
             ret = cap.grab()
 
 
-def reactive(leftObstacle, rightObstacle, frontObstacle):
+def reactive(leftObstacle, rightObstacle, frontObstacle, somethingAtLeft, somethingAtRight):
     print "Reactive"
     if not leftObstacle and not rightObstacle and not frontObstacle:
         conn.send(str(constants.FORWARD_FAST))
@@ -44,7 +44,10 @@ def reactive(leftObstacle, rightObstacle, frontObstacle):
     elif rightObstacle:
         conn.send(str(constants.TURN_LEFT))
     else:
-        conn.send(str(constants.BACKWARD_LEFT))
+        if somethingAtRight:
+            conn.send(str(constants.BACKWARD_LEFT))
+        else:
+            conn.send(str(constants.BACKWARD_RIGHT))
 
 
 def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, t1, t2):
@@ -55,21 +58,21 @@ def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toT
         if toTurn > t1 and not rightObstacle:
             print "Reorienting"
             if toTurn < t2:
-                conn.send(str(constants.TURN_RIGHT_MICRO))
+                conn.send(str(constants.TURN_LEFT_MICRO))
                 return True
             else:
-                conn.send(str(constants.TURN_RIGHT))
+                conn.send(str(constants.TURN_LEFT))
                 return True
     # se non ho nulla alla mia sinistra ha senso orientarmi ora
     if not somethingAtLeft:
         if toTurn < -t1 and not leftObstacle:
             print "Reorienting"
             if toTurn < -t2:
-                conn.send(str(constants.TURN_LEFT_MICRO))
+                conn.send(str(constants.TURN_RIGHT_MICRO))
                 return True
 
             else:
-                conn.send(str(constants.TURN_LEFT))
+                conn.send(str(constants.TURN_RIGHT))
                 return True
     print "Not reoriented"
     return False
@@ -86,6 +89,7 @@ frames_grabber.start()
 print "Grabbing frames started"
 s.listen(1)
 print "Listening started"
+
 try:
     while True:
         conn, addr = s.accept()
@@ -109,10 +113,11 @@ try:
         # Compass data
         currentDegrees = input_dictionary['degrees']
         print "Degrees: ", currentDegrees
-        print "Up Sonar: ", upSonar
+        # print "Up Sonar: ", upSonar
         targetDegrees, targetType, targetColor = states_manager.get_targets()
-        if targetType == "area" and targetColor == "blue":
-            targetColor = "green"
+        print targetDegrees, targetType, targetColor
+        # if targetType == "area" and targetColor == "blue":
+        #    targetColor = "green"
 
         if targetColor == "green":
             toTurn = 0
@@ -127,14 +132,19 @@ try:
                 break
 
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
             detector_handler.find_target(
                 frame, color=targetColor, type_obj=targetType)
+
+            # if targetColor == "blue" and targetType == "area" and detector_handler.target is None:
+            #     targetColor = "green"
+            #     detector_handler.find_target(
+            #         frame, color=targetColor, type_obj=targetType)
 
             # se trovi un target vai al target
             if detector_handler.target is not None:
                 rect_area = detector_handler.target.bounding_box[1][0] * \
                     detector_handler.target.bounding_box[1][1]
-                print rect_area
                 if not (leftObstacle or frontObstacle or rightObstacle):
                     following = True
                     if grabbed:
@@ -165,7 +175,8 @@ try:
             if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, 5, 20):
                 continue
 
-            reactive(leftObstacle, rightObstacle, frontObstacle)
+            reactive(leftObstacle, rightObstacle, frontObstacle,
+                     somethingAtLeft, somethingAtRight)
 
         else:
             conn.send('0')  # send NOP

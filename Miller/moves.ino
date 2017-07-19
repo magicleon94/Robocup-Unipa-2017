@@ -1,9 +1,9 @@
-#define FORWARD_SPEED       200
-#define FORWARD_FAST_SPEED  240
-#define FORWARD_TIME        500
-#define BACKWARD_SPEED      180
-#define BACKWARD_TIME       250
-#define TURNING_SPEED       240
+#define FORWARD_SPEED       190
+#define FORWARD_FAST_SPEED  220
+#define FORWARD_TIME        800
+#define BACKWARD_SPEED      220
+#define BACKWARD_TIME       350
+#define TURNING_SPEED       230
 #define TURNING_TIME        250
 #define TURNING_TIME_MICRO  150
 #define ACCEL_X_BIAS        -0.05
@@ -36,7 +36,7 @@ void arm_release(){
 }
 
 float getCompassDegrees() {
-  imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
+  imu.update(UPDATE_COMPASS);
   float magX = imu.calcMag(imu.mx) - xOffset; // magX is x-axis magnetic field in uT
   float magY = imu.calcMag(imu.my) - yOffset; // magY is y-axis magnetic field in uT
 
@@ -65,8 +65,8 @@ void moveForward() {
   digitalWrite(IN2, 0);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_SPEED+15);
-  analogWrite(ENA, FORWARD_SPEED);
+  analogWrite(ENB, FORWARD_SPEED);
+  analogWrite(ENA, FORWARD_SPEED-15);
 
   while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
@@ -93,8 +93,8 @@ void moveForwardFast() {
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_FAST_SPEED+15);
-  analogWrite(ENA, FORWARD_FAST_SPEED);
+  analogWrite(ENB, FORWARD_FAST_SPEED);
+  analogWrite(ENA, FORWARD_FAST_SPEED-15);
   while (millis() - t0 < FORWARD_TIME) {
     bool leftObstacle  = digitalRead(leftIR) == 0;
     bool frontObstacle = digitalRead(frontIR) == 0;
