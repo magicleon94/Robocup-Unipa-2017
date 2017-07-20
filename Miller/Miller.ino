@@ -33,19 +33,19 @@
 #define RIGHT_180_AND_FORWARD 17
 
 #define ENA 3
-#define IN1 5
-#define IN2 4
-#define IN3 7
-#define IN4 6
+#define IN1 4
+#define IN2 5
+#define IN3 6
+#define IN4 7
 #define ENB 8
 
-#define LEFT_IR 53
+#define LEFT_IR 36
 #define C_FRONT_IR 22
-#define RIGHT_IR 23
+#define RIGHT_IR 40
 #define UPSONAR A7
-#define ARMFRONT_IR A9
-#define ARMLEFT_IR 53
-#define ARMRIGHT_IR 23
+#define ARMFRONT_IR 38
+#define ARMLEFT_IR 34
+#define ARMRIGHT_IR A15
 
 #define LEFT_ECHO 10
 #define LEFT_TRIGGER 9
@@ -156,9 +156,12 @@ void setup()
     Serial.print("to station err\r\n");
   }
 
-  pinMode(leftIR, INPUT);
-  pinMode(frontIR, INPUT);
-  pinMode(rightIR, INPUT);
+  pinMode(LEFT_IR, INPUT);
+  pinMode(C_FRONT_IR, INPUT);
+  pinMode(ARMFRONT_IR, INPUT);
+  pinMode(RIGHT_IR, INPUT);
+  pinMode(ARMLEFT_IR,INPUT);
+  pinMode(ARMRIGHT_IR,INPUT);
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
   pinMode(IN1, OUTPUT);
@@ -238,7 +241,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Lowering my arm");
     arm_grab();
-    swichIRs();
+    switchIRs();
     break;
   }
 
@@ -246,7 +249,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Bringing my arm up");
     arm_release();
-    swichIRs();
+    switchIRs();
     break;
   }
 
@@ -336,6 +339,7 @@ void loop()
   root["rightObstacle"] = rightObstacle;
   root["leftArmObstacle"] = leftArmObstacle;
   root["rightArmObstacle"] = rightArmObstacle;
+  Serial.println(rightArmObstacle);
 
   root["upSonar"] = upDistance;
   root["leftDistance"] = leftDistance;
@@ -345,5 +349,6 @@ void loop()
 
   char msg[512];
   root.printTo(msg, sizeof(msg));
+  return;
   askAndExecute(msg);
 }

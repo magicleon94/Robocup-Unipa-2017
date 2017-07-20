@@ -1,13 +1,15 @@
 #define FORWARD_SPEED 190
 #define FORWARD_FAST_SPEED 220
 #define FORWARD_TIME 800
-#define BACKWARD_SPEED 220
-#define BACKWARD_TIME 350
+#define BACKWARD_SPEED 190
+#define BACKWARD_TIME 250
 #define TURNING_SPEED 230
-#define TURNING_TIME 250
-#define TURNING_TIME_MICRO 150
+#define TURNING_TIME 230
+#define TURNING_TIME_MICRO 100
 #define ACCEL_X_BIAS -0.05
 #define ACCEL_Y_BIAS -0.01
+#define A_BALANCE +30
+#define B_BALANCE -23
 
 float xOffset = -27.0;
 float yOffset = 4.0;
@@ -73,17 +75,17 @@ void moveForward()
   digitalWrite(IN2, 0);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_SPEED);
-  analogWrite(ENA, FORWARD_SPEED - 15);
+  analogWrite(ENB, constrain(FORWARD_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(FORWARD_SPEED + A_BALANCE,0,255));
 
   while (millis() - t0 < FORWARD_TIME)
   {
-    bool leftObstacle = digitalRead(leftIR) == 0;
-    bool frontObstacle = digitalRead(frontIR) == 0;
-    bool rightObstacle = digitalRead(rightIR) == 0;
+    bool leftObstacle = digitalRead(LEFT_IR) == 0;
+    bool frontObstacle = digitalRead(FRONT_IR) == 0;
+    bool rightObstacle = digitalRead(RIGHT_IR) == 0;
     bool leftArmObstacle = digitalRead(ARMLEFT_IR) == 0;
     bool rightArmObstacle = digitalRead(ARMRIGHT_IR) == 0;
-    if (leftObstacle || frontObstacle || rightObstacle || rightArmObstacle || leftArmObstacle)
+    if (leftObstacle || frontObstacle || rightObstacle || ((rightArmObstacle || leftArmObstacle) && down))
     {
       break;
     }
@@ -105,16 +107,16 @@ void moveForwardFast()
   digitalWrite(IN1, 1);
   digitalWrite(IN2, 0);
   unsigned long t0 = millis();
-  analogWrite(ENB, FORWARD_FAST_SPEED);
-  analogWrite(ENA, FORWARD_FAST_SPEED - 15);
+  analogWrite(ENB, constrain(FORWARD_FAST_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(FORWARD_FAST_SPEED + A_BALANCE,0,255));
   while (millis() - t0 < FORWARD_TIME)
   {
-    bool leftObstacle = digitalRead(leftIR) == 0;
-    bool frontObstacle = digitalRead(frontIR) == 0;
-    bool rightObstacle = digitalRead(rightIR) == 0;
+    bool leftObstacle = digitalRead(LEFT_IR) == 0;
+    bool frontObstacle = digitalRead(FRONT_IR) == 0;
+    bool rightObstacle = digitalRead(RIGHT_IR) == 0;
     bool leftArmObstacle = digitalRead(ARMLEFT_IR) == 0;
     bool rightArmObstacle = digitalRead(ARMRIGHT_IR) == 0;
-    if (leftObstacle || frontObstacle || rightObstacle || rightArmObstacle || leftArmObstacle)
+    if (leftObstacle || frontObstacle || rightObstacle || ((rightArmObstacle || leftArmObstacle) && down))
     {
       break;
     }
@@ -135,8 +137,8 @@ void moveBackward()
   digitalWrite(IN2, 1);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, BACKWARD_SPEED);
-  analogWrite(ENA, BACKWARD_SPEED);
+  analogWrite(ENB, constrain(BACKWARD_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(BACKWARD_SPEED + A_BALANCE,0,255));
 
   while (millis() - t0 < BACKWARD_TIME)
   {
@@ -159,14 +161,14 @@ void turnLeft()
   digitalWrite(IN2, 1);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, TURNING_SPEED);
-  analogWrite(ENA, TURNING_SPEED);
+  analogWrite(ENB, constrain(TURNING_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(TURNING_SPEED + A_BALANCE,0,255));
 
   while (millis() - t0 < TURNING_TIME)
   {
-    bool leftObstacle = digitalRead(leftIR) == 0;
+    bool leftObstacle = digitalRead(LEFT_IR) == 0;
     bool leftArmObstacle = digitalRead(ARMLEFT_IR) == 0;
-    if (leftObstacle || leftArmObstacle)
+    if (leftObstacle || (leftArmObstacle && down))
     {
       break;
     }
@@ -188,14 +190,14 @@ void turnLeft(float targetAngle)
   float start_angle = getCompassDegrees();
 
   unsigned long t0 = millis();
-  analogWrite(ENB, TURNING_SPEED);
-  analogWrite(ENA, TURNING_SPEED);
+  analogWrite(ENB, constrain(TURNING_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(TURNING_SPEED + A_BALANCE,0,255));
 
   while (abs(getCompassDegrees() - start_angle) < targetAngle)
   {
-    bool leftObstacle = digitalRead(leftIR) == 0;
+    bool leftObstacle = digitalRead(LEFT_IR) == 0;
     bool leftArmObstacle = digitalRead(ARMLEFT_IR) == 0;
-    if (leftObstacle || leftArmObstacle)
+    if (leftObstacle || (leftArmObstacle && down))
     {
       break;
     }
@@ -216,14 +218,14 @@ void turnLeftMicro()
   digitalWrite(IN2, 1);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, TURNING_SPEED);
-  analogWrite(ENA, TURNING_SPEED);
+  analogWrite(ENB, constrain(TURNING_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(TURNING_SPEED + A_BALANCE,0,255));
 
   while (millis() - t0 < TURNING_TIME_MICRO)
   {
-    bool leftObstacle = digitalRead(leftIR) == 0;
+    bool leftObstacle = digitalRead(LEFT_IR) == 0;
     bool leftArmObstacle = digitalRead(ARMLEFT_IR) == 0;
-    if (leftObstacle || leftArmObstacle)
+    if (leftObstacle || (leftArmObstacle && down))
     {
       break;
     }
@@ -244,14 +246,14 @@ void turnRight()
   digitalWrite(IN2, 0);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, TURNING_SPEED);
-  analogWrite(ENA, TURNING_SPEED);
+  analogWrite(ENB, constrain(TURNING_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(TURNING_SPEED + A_BALANCE,0,255));
 
   while (millis() - t0 < TURNING_TIME)
   {
-    bool rightObstacle = digitalRead(rightIR) == 0;
+    bool rightObstacle = digitalRead(RIGHT_IR) == 0;
     bool rightArmObstacle = digitalRead(ARMRIGHT_IR) == 0;
-    if (rightObstacle || rightArmObstacle)
+    if (rightObstacle || (rightArmObstacle && down))
     {
       break;
     }
@@ -274,21 +276,21 @@ void turnRight(float targetAngle)
 
   float start_angle = getCompassDegrees();
 
-  analogWrite(ENB, TURNING_SPEED);
-  analogWrite(ENA, TURNING_SPEED);
+  analogWrite(ENB, constrain(TURNING_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(TURNING_SPEED + A_BALANCE,0,255));
 
   while (abs(getCompassDegrees() - start_angle) < targetAngle)
   {
-    bool rightObstacle = digitalRead(rightIR) == 0;
+    bool rightObstacle = digitalRead(RIGHT_IR) == 0;
     bool rightArmObstacle = digitalRead(ARMRIGHT_IR) == 0;
-    if (rightObstacle || rightArmObstacle)
+    if (rightObstacle || (rightArmObstacle && down))
     {
       break;
     }
   }
 
-  analogWrite(ENB, TURNING_SPEED);
-  analogWrite(ENA, TURNING_SPEED);
+  analogWrite(ENB, constrain(TURNING_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(TURNING_SPEED + A_BALANCE,0,255));
 }
 
 void turnRightMicro()
@@ -303,14 +305,14 @@ void turnRightMicro()
   digitalWrite(IN2, 0);
 
   unsigned long t0 = millis();
-  analogWrite(ENB, TURNING_SPEED);
-  analogWrite(ENA, TURNING_SPEED);
+  analogWrite(ENB, constrain(TURNING_SPEED + B_BALANCE,0,255));
+  analogWrite(ENA, constrain(TURNING_SPEED + A_BALANCE,0,255));
 
   while (millis() - t0 < TURNING_TIME_MICRO)
   {
-    bool rightObstacle = digitalRead(rightIR) == 0;
+    bool rightObstacle = digitalRead(RIGHT_IR) == 0;
     bool rightArmObstacle = digitalRead(ARMRIGHT_IR) == 0;
-    if (rightObstacle || rightArmObstacle)
+    if (rightObstacle || (rightArmObstacle && down))
     {
       break;
     }
