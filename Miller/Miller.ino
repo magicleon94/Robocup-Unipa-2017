@@ -42,17 +42,17 @@
 #define LEFT_IR 36
 #define C_FRONT_IR 22
 #define RIGHT_IR 40
-#define UPSONAR A7
 #define ARMFRONT_IR 38
 #define ARMLEFT_IR 34
 #define ARMRIGHT_IR A15
+#define UP_IR A7
 
 #define LEFT_ECHO 10
 #define LEFT_TRIGGER 9
 #define RIGHT_ECHO A2
 #define RIGHT_TRIGGER A1
-#define UP_ECHO 13
-#define UP_TRIGGER 12
+
+
 
 #define DEBUG_LED_WIFI A8
 
@@ -63,7 +63,7 @@ MPU9250_DMP imu;
 Servo myservo;
 NewPing leftSonar(LEFT_TRIGGER, LEFT_ECHO, 200);
 NewPing rightSonar(RIGHT_TRIGGER, RIGHT_ECHO, 200);
-NewPing upSonar(UP_TRIGGER, UP_ECHO, 200);
+
 
 uint8_t FRONT_IR = C_FRONT_IR;
 
@@ -162,6 +162,8 @@ void setup()
   pinMode(RIGHT_IR, INPUT);
   pinMode(ARMLEFT_IR,INPUT);
   pinMode(ARMRIGHT_IR,INPUT);
+  pinMode(UP_IR,INPUT);
+  
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
   pinMode(IN1, OUTPUT);
@@ -327,11 +329,11 @@ void loop()
   uint8_t rightObstacle = digitalRead(RIGHT_IR);
   uint8_t leftArmObstacle = digitalRead(ARMLEFT_IR);
   uint8_t rightArmObstacle = digitalRead(ARMRIGHT_IR);
-
+  uint8_t upObstacle = digitalRead(UP_IR);
+  
   float leftDistance = leftSonar.convert_cm(leftSonar.ping_median());
   float rightDistance = rightSonar.convert_cm(rightSonar.ping_median());
-  float upDistance = upSonar.convert_cm(upSonar.ping_median());
-
+  
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["leftObstacle"] = leftObstacle;
@@ -339,9 +341,9 @@ void loop()
   root["rightObstacle"] = rightObstacle;
   root["leftArmObstacle"] = leftArmObstacle;
   root["rightArmObstacle"] = rightArmObstacle;
-  Serial.println(rightArmObstacle);
+  root["upObstacle"] = upObstacle;
 
-  root["upSonar"] = upDistance;
+
   root["leftDistance"] = leftDistance;
   root["rightDistance"] = rightDistance;
 
@@ -349,6 +351,6 @@ void loop()
 
   char msg[512];
   root.printTo(msg, sizeof(msg));
-  return;
+  Serial.println(upObstacle);
   askAndExecute(msg);
 }

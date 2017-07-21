@@ -7,11 +7,9 @@ import Thresholder
 class Detector(object):
     def __init__(self, obj):
         self.obj = obj
-        self.distance = None
         self.bounding_box = None
 
     def refresh(self):
-        self.distance = None
         self.bounding_box = None
 
     def find_obj(self, frame):
@@ -36,17 +34,18 @@ class Detector(object):
                     #self.bounding_box = rect
                     #box = np.int0(cv2.boxPoints(rect))
                     self.bounding_box = rect
-                    return rect
+                    print type(mask), type(rect)
+                    return mask, rect
                     # cv2.drawContours(
                     #     frame, [box], -1, self.obj.frameColor, 8)
                     #text = self.obj.name + " " + self.obj.type
                     # print text
-            return None
+            return None, None
 
-    def find_type(self, frame):
+    def find_type(self, frame, following):
         other_color_detector = Detector(Object(self.obj.otherObjectColor))
         rect_other_color = other_color_detector.find_obj(frame)
-        if rect_other_color is not None:  # se ha trovato l'altro colore allora e' un oggetto
+        if rect_other_color is not None or following:  # se ha trovato l'altro colore allora e' un oggetto
             self.obj.type = "object"
         else:
             self.obj.type = "area"

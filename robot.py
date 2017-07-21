@@ -1,3 +1,4 @@
+from __future__ import division
 import json
 import socket
 import constants
@@ -5,7 +6,9 @@ import cv2
 import threading
 from DetectorHandler import DetectorHandler
 import time
+import numpy as np
 from States import States
+
 
 # globals
 running = True
@@ -82,12 +85,20 @@ def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toT
     return False
 
 
+def shouldRelease(target, width):
+    center_x = target.bounding_box[0][0]
+    range_min = width * 0.5 - width / 6
+    range_max = width * 0.5 + width / 6
+    return range_min <= center_x <= range_max
+
+
 frames_grabber = FramesGrabber()
 detector_handler = DetectorHandler()
 states_manager = States()
 
 following = False
 grabbed = False
+steps = 0
 
 frames_grabber.start()
 print "Grabbing frames started"
@@ -109,14 +120,12 @@ try:
         rightObstacle = input_dictionary["rightObstacle"] == 0
         leftArmObstacle = input_dictionary["leftArmObstacle"] == 0
         rightArmObstacle = input_dictionary["rightArmObstacle"] == 0
+        upObstacle = input_dictionary["upObstacle"] == 0
 
         # Merge IR left and right
         if grabbed:
             leftObstacle = leftObstacle or leftArmObstacle
             rightObstacle = rightObstacle or rightArmObstacle
-
-        upSonar = input_dictionary["upSonar"]
-        upObstacle = 0 < upSonar < 25
 
         # Sonar data
         somethingAtLeft = 0 < input_dictionary['leftDistance'] < 30
@@ -125,11 +134,9 @@ try:
         # Compass data
         currentDegrees = input_dictionary['degrees']
         print "Degrees: ", currentDegrees
-        # print "Up Sonar: ", upSonar
+
         targetDegrees, targetType, targetColor = states_manager.get_targets()
         print targetDegrees, targetType, targetColor
-        # if targetType == "area" and targetColor == "blue":
-        #    targetColor = "green"
 
         if targetColor == "green":
             toTurn = 0
@@ -143,39 +150,10 @@ try:
 
         if frame is not None:
             cv2.imshow('frame', frame)
-            if cv2.waitKey(0) & 0xFF == ord('q'):
+            if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-            detector_handler.find_target(
-                frame, color=targetColor, type_obj=targetType)
-
-            # if targetColor == "blue" and targetType == "area" and detector_handler.target is None:
-            #     targetColor = "green"
-            #     detector_handler.find_target(
-            #         frame, color=targetColor, type_obj=targetType)
-
-            # se trovi un target vai al target
-            if detector_handler.target is not None:
-                # rect_area = detector_handler.target.bounding_box[1][0] * \
-                #    detector_handler.target.bounding_box[1][1]
-                if not (leftObstacle or frontObstacle or rightObstacle):  # se non ci sono ostacoli
-                    following = True
-                    if grabbed:
-                        if 23 < upSonar < detector_handler.target.obj.distanceAreaRelease:
-                            conn.send(str(constants.RELEASE))
-                            grabbed = False
-                            states_manager.state_transition()
-                            continue
-                        else:
-                            conn.send(str(detector_handler.do_action()))
-                            print "Going to target"
-                            continue
-                    else:
-                        conn.send(str(detector_handler.do_action()))
-                        print "Going to target"
-                        continue
 
             if targetType == 'object':
                 if (not upObstacle) and frontObstacle:
@@ -183,11 +161,34 @@ try:
                     states_manager.state_transition()
                     conn.send(str(constants.GRAB))
                     grabbed = True
+                    following = False
                     continue
-                # else:
-                #    conn.send(str(constants.BACKWARD))
+
+            detector_handler.find_target(
+                frame, following, color=targetColor, type_obj=targetType)
+
+            # se trovi un target vai al target
+            if detector_handler.target is not None:
+                if grabbed and frontObstacle:
+                    if shouldRelease(detector_handler.target, frame.shape[1]):
+                        conn.send(str(constants.RELEASE))
+                        grabbed = False
+                        following = False
+                        states_manager.state_transition()
+                        continue
+
+                else:
+                    if not (leftObstacle or frontObstacle or rightObstacle):  # se non ci sono ostacoli
+                        if not grabbed:
+                            following = True
+                            conn.send(str(detector_handler.do_action()))
+                            print "Going to target"
+                            continue
+                    else:
+                        following = False
 
             # no proper target found, adjust the orientation
+
             if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, 5, 20):
                 continue
 

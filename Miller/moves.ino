@@ -1,11 +1,11 @@
 #define FORWARD_SPEED 190
 #define FORWARD_FAST_SPEED 220
-#define FORWARD_TIME 800
+#define FORWARD_TIME 700
 #define BACKWARD_SPEED 190
-#define BACKWARD_TIME 250
-#define TURNING_SPEED 230
-#define TURNING_TIME 230
-#define TURNING_TIME_MICRO 100
+#define BACKWARD_TIME 450
+#define TURNING_SPEED 200
+#define TURNING_TIME 170
+#define TURNING_TIME_MICRO 90
 #define ACCEL_X_BIAS -0.05
 #define ACCEL_Y_BIAS -0.01
 #define A_BALANCE +30
@@ -20,7 +20,7 @@ void arm_grab()
   Serial.println("grabbing");
   if (!down)
   {
-    for (int i = 180; i >= 90; i -= 5)
+    for (int i = 180; i >= 75; i -= 5)
     {
       myservo.write(i);
       delay(100);
@@ -34,7 +34,7 @@ void arm_release()
   Serial.println("releasing");
   if (down)
   {
-    for (int i = 90; i <= 180; i += 5)
+    for (int i = 75; i <= 180; i += 5)
     {
       myservo.write(i);
       delay(100);
@@ -90,7 +90,8 @@ void moveForward()
       break;
     }
   }
-
+  analogWrite(ENB, 50);
+  analogWrite(ENA, 50);
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 }
@@ -121,6 +122,9 @@ void moveForwardFast()
       break;
     }
   }
+  
+  analogWrite(ENB, 50);
+  analogWrite(ENA, 50);
   analogWrite(ENB, 0);
   analogWrite(ENA, 0);
 }

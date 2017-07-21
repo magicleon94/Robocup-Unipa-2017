@@ -12,25 +12,33 @@ class DetectorHandler(object):
         self.detectors = detectors
         self.target = None
         self.frame = None
+        self.mask = None
         # self.update()
 
-    def find_target(self, frame, color=None, type_obj="object"):
+    def find_target(self, frame, following, color=None, type_obj="object"):
         self.update(frame)
         if color is None:  # se non gli passo nessun colore da cercare, li cerco tutti
             for detector in self.detectors:
-                rect = detector.find_obj(self.frame)
+                mask, rect = detector.find_obj(self.frame)
                 if rect is not None:
-                    detector.find_type(self.frame)
+                    detector.find_type(self.frame, following)
                 if detector.bounding_box and detector.obj.type == type_obj:  # se ho rilevato qualcosa
                     self.target = detector
                     break
         else:  # altrimenti cerco solo quel colore
             detector = Detector(Object(color))
-            rect = detector.find_obj(self.frame)
+            try:
+                mask, rect = detector.find_obj(self.frame)
+            except TypeError:
+                mask = None
+                rect = None
+
             if rect is not None:
-                detector.find_type(self.frame)
+                detector.find_type(self.frame, following)
+
             if detector.bounding_box and detector.obj.type == type_obj:  # se ho rilevato qualcosa
                 self.target = detector
+                self.mask = mask
         if self.target:
             print "my target is " + self.target.obj.name + " " + self.target.obj.type
 
@@ -55,6 +63,7 @@ class DetectorHandler(object):
 
     def update(self, frame):  # aggiorna distanze e bounding box di tutti i detector
         self.target = None
+        self.mask = None
         self.frame = frame
         for detector in self.detectors:
             detector.refresh()
