@@ -39,21 +39,28 @@ class FramesGrabber(threading.Thread):
 def reactive(leftObstacle, rightObstacle, frontObstacle, somethingAtLeft, somethingAtRight):
     print "Reactive"
     if not leftObstacle and not rightObstacle and not frontObstacle:
-        conn.send(str(constants.FORWARD_FAST))
+        prev_action = str(constants.FORWARD_FAST)
+        conn.send(prev_action)
     elif leftObstacle and rightObstacle:
         if somethingAtRight:
-            conn.send(str(constants.BACKWARD_LEFT))
+            prev_action = str(constants.BACKWARD_LEFT)
+            conn.send(prev_action)
         else:
-            conn.send(str(constants.BACKWARD_RIGHT))
+            prev_action = str(constants.BACKWARD_RIGHT)
+            conn.send(prev_action)
     elif leftObstacle:
-        conn.send(str(constants.TURN_RIGHT))
+        prev_action = str(constants.TURN_RIGHT)
+        conn.send(prev_action)
     elif rightObstacle:
-        conn.send(str(constants.TURN_LEFT))
+        prev_action = str(constants.TURN_LEFT)
+        conn.send(prev_action)
     else:
         if somethingAtRight:
-            conn.send(str(constants.BACKWARD_LEFT))
+            prev_action = str(constants.BACKWARD_LEFT)
+            conn.send(prev_action)
         else:
-            conn.send(str(constants.BACKWARD_RIGHT))
+            prev_action = str(constants.BACKWARD_RIGHT)
+            conn.send(prev_action)
 
 # L'ANGOLO AUMENTA IN SENSO ANTIORARIO
 
@@ -65,21 +72,25 @@ def reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toT
         if toTurn < -t1 and not rightObstacle:
             print "Reorienting"
             if toTurn > -t2:
-                conn.send(str(constants.TURN_RIGHT_MICRO))
+                prev_action = str(constants.TURN_RIGHT_MICRO)
+                conn.send(prev_action)
                 return True
             else:
-                conn.send(str(constants.TURN_RIGHT))
+                prev_action = str(constants.TURN_RIGHT)
+                conn.send(prev_action)
                 return True
     # se non ho nulla alla mia sinistra ha senso orientarmi ora
     if not somethingAtLeft:
         if toTurn > t1 and not leftObstacle:
             print "Reorienting"
             if toTurn < t2:
-                conn.send(str(constants.TURN_LEFT_MICRO))
+                prev_action = str(constants.TURN_LEFT_MICRO)
+                conn.send(prev_action)
                 return True
 
             else:
-                conn.send(str(constants.TURN_LEFT))
+                prev_action = str(constants.TURN_LEFT)
+                conn.send(prev_action)
                 return True
     print "Not reoriented"
     return False
@@ -89,7 +100,7 @@ def shouldRelease(target, width):
     center_x = target.bounding_box[0][0]
     range_min = width * 0.5 - width / 6
     range_max = width * 0.5 + width / 6
-    return range_min <= center_x <= range_max
+    return (range_min <= center_x <= range_max)
 
 
 frames_grabber = FramesGrabber()
@@ -98,7 +109,7 @@ states_manager = States()
 
 following = False
 grabbed = False
-steps = 0
+prev_action = None
 
 frames_grabber.start()
 print "Grabbing frames started"
@@ -155,15 +166,6 @@ try:
 
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-            if targetType == 'object':
-                if (not upObstacle) and frontObstacle:
-                    print "grabbing object"
-                    states_manager.state_transition()
-                    conn.send(str(constants.GRAB))
-                    grabbed = True
-                    following = False
-                    continue
-
             detector_handler.find_target(
                 frame, following, color=targetColor, type_obj=targetType)
 
@@ -171,7 +173,8 @@ try:
             if detector_handler.target is not None:
                 if grabbed and frontObstacle:
                     if shouldRelease(detector_handler.target, frame.shape[1]):
-                        conn.send(str(constants.RELEASE))
+                        prev_action = str(constants.RELEASE)
+                        conn.send(prev_action)
                         grabbed = False
                         following = False
                         states_manager.state_transition()
@@ -181,11 +184,30 @@ try:
                     if not (leftObstacle or frontObstacle or rightObstacle):  # se non ci sono ostacoli
                         if not grabbed:
                             following = True
-                            conn.send(str(detector_handler.do_action()))
+                            prev_action = str(detector_handler.do_action())
+                            conn.send(prev_action)
                             print "Going to target"
                             continue
                     else:
                         following = False
+            else:
+                if targetType == 'object':
+                    if (not upObstacle) and frontObstacle:
+                        print "grabbing object"
+                        states_manager.state_transition()
+                        prev_action = str(constants.GRAB)
+                        conn.send(prev_action)
+                        grabbed = True
+                        following = False
+                        continue
+                if targetType == 'area':
+                    if grabbed and following and frontObstacle and prev_action == str(constants.FORWARD):
+                        prev_action = str(constants.RELEASE)
+                        conn.send(prev_action)
+                        grabbed = False
+                        following = False
+                        states_manager.state_transition()
+                        continue
 
             # no proper target found, adjust the orientation
 
@@ -196,6 +218,7 @@ try:
                      somethingAtLeft, somethingAtRight)
 
         else:
+            prev_action = '0'
             conn.send('0')  # send NOP
             print "Frame is none"
 
