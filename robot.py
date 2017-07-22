@@ -49,10 +49,12 @@ def reactive(leftObstacle, rightObstacle, frontObstacle, somethingAtLeft, someth
             prev_action = str(constants.BACKWARD_RIGHT)
             conn.send(prev_action)
     elif leftObstacle:
-        prev_action = str(constants.TURN_RIGHT)
+        # prev_action = str(constants.TURN_RIGHT)
+        prev_action = str(constants.RIGHT_AND_FORWARD)
         conn.send(prev_action)
     elif rightObstacle:
-        prev_action = str(constants.TURN_LEFT)
+        # prev_action = str(constants.TURN_LEFT)
+        prev_action = str(constants.LEFT_AND_FORWARD)
         conn.send(prev_action)
     else:
         if somethingAtRight:
@@ -182,17 +184,17 @@ try:
 
                 else:
                     if not (leftObstacle or frontObstacle or rightObstacle):  # se non ci sono ostacoli
-                        if not grabbed:
-                            following = True
-                            prev_action = str(detector_handler.do_action())
-                            conn.send(prev_action)
-                            print "Going to target"
-                            continue
+                        # if not grabbed:
+                        following = True
+                        prev_action = str(detector_handler.do_action())
+                        conn.send(prev_action)
+                        print "Going to target"
+                        continue
                     else:
                         following = False
             else:
                 if targetType == 'object':
-                    if (not upObstacle) and frontObstacle:
+                    if (not upObstacle) and frontObstacle and following:
                         print "grabbing object"
                         states_manager.state_transition()
                         prev_action = str(constants.GRAB)

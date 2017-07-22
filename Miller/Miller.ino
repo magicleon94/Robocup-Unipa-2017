@@ -299,22 +299,22 @@ void askAndExecute(char *data)
   {
     switch (command / 1000)
     {
-    case TURN_LEFT:
-    {
-      float targetAngle = command % 1000;
-      Serial.print("Turning left of: ");
-      Serial.println(targetAngle);
-      turnLeft(targetAngle);
-      break;
-    }
-    case TURN_RIGHT:
-    {
-      float targetAngle = command % 1000;
-      Serial.print("Turning right of: ");
-      Serial.println(targetAngle);
-      turnRight(targetAngle);
-      break;
-    }
+      case TURN_LEFT:
+      {
+        float targetAngle = command % 1000;
+        Serial.print("Turning left of: ");
+        Serial.println(targetAngle);
+        turnLeft(targetAngle);
+        break;
+      }
+      case TURN_RIGHT:
+      {
+        float targetAngle = command % 1000;
+        Serial.print("Turning right of: ");
+        Serial.println(targetAngle);
+        turnRight(targetAngle);
+        break;
+      }
     }
   }
   }
