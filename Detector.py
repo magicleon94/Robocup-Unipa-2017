@@ -30,11 +30,10 @@ class Detector(object):
                 larghezza = rect[1][0]
                 altezza = rect[1][1]
 
-                if altezza > 30:
+                if altezza > 40:
                     #self.bounding_box = rect
                     #box = np.int0(cv2.boxPoints(rect))
                     self.bounding_box = rect
-                    print type(mask), type(rect)
                     return mask, rect
                     # cv2.drawContours(
                     #     frame, [box], -1, self.obj.frameColor, 8)

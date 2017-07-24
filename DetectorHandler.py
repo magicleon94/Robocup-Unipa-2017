@@ -32,8 +32,8 @@ class DetectorHandler(object):
             except TypeError:
                 mask = None
                 rect = None
-
-            if rect is not None:
+            detector.obj.type = "area"
+            if rect is not None and type_obj == "object":
                 detector.find_type(self.frame, following)
 
             if detector.bounding_box and detector.obj.type == type_obj:  # se ho rilevato qualcosa
@@ -48,8 +48,8 @@ class DetectorHandler(object):
         else:
             text = "target: " + self.target.obj.name + " " + self.target.obj.type
             print text
-            range_min = self.frame.shape[1] * 0.5 - self.frame.shape[1] / 6
-            range_max = self.frame.shape[1] * 0.5 + self.frame.shape[1] / 6
+            range_min = self.frame.shape[1] * 0.5 - self.frame.shape[1] / 8
+            range_max = self.frame.shape[1] * 0.5 + self.frame.shape[1] / 8
             print self.frame.shape
             if range_min <= self.target.bounding_box[0][0] <= range_max:
                 print "vai avanti"

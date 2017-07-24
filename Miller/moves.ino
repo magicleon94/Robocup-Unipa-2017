@@ -1,15 +1,15 @@
-#define FORWARD_SPEED 190
-#define FORWARD_FAST_SPEED 220
+#define FORWARD_SPEED 210
+#define FORWARD_FAST_SPEED 230
 #define FORWARD_TIME 700
 #define BACKWARD_SPEED 190
 #define BACKWARD_TIME 450
-#define TURNING_SPEED 200
-#define TURNING_TIME 170
-#define TURNING_TIME_MICRO 90
+#define TURNING_SPEED 220
+#define TURNING_TIME 200
+#define TURNING_TIME_MICRO 110
 #define ACCEL_X_BIAS -0.05
 #define ACCEL_Y_BIAS -0.01
-#define A_BALANCE +30
-#define B_BALANCE -23
+#define A_BALANCE +20
+#define B_BALANCE -10
 
 float xOffset = -27.0;
 float yOffset = 4.0;
