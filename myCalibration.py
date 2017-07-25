@@ -25,7 +25,6 @@ def distance_to_camera(knownWidth, focalLength, perWidth):
 
 
 def update(x):
-    print "lullo"
     bgr_lower[0] = cv2.getTrackbarPos('B_LOW', 'mask')
     bgr_lower[1] = cv2.getTrackbarPos('G_LOW', 'mask')
     bgr_lower[2] = cv2.getTrackbarPos('R_LOW', 'mask')
@@ -47,9 +46,8 @@ def update(x):
 #cap = cv2.VideoCapture(0)
 
 
-bgr_lower = [9, 0, 1]  # np.array([0, 0, 0])
-bgr_upper = [245, 99, 68]  # np.array([255, 255, 255])
-
+bgr_lower = [3, 27, 45]
+bgr_upper = [197, 255, 95]
 
 frame = None
 ret = None
@@ -96,11 +94,13 @@ try:
         if src is None:
             print "Frame is None"
             continue
+        cv2.imshow('img', src)
         src = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
+
+        # src[:, :, 2] = cv2.equalizeHist(src[:, :, 2])
         mask = Thresholder.threshold(src, bgr_lower, bgr_upper)
 
         cv2.imshow('mask', mask)
-        cv2.imshow('img', src)
 
         if cv2.waitKey(0) & 0xFF == ord('q'):
             break

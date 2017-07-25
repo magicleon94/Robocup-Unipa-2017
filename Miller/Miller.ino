@@ -33,24 +33,26 @@
 #define RIGHT_180_AND_FORWARD 17
 
 #define ENA 3
-#define IN1 5
-#define IN2 4
-#define IN3 7
-#define IN4 6
+#define IN1 4
+#define IN2 5
+#define IN3 6
+#define IN4 7
 #define ENB 8
 
-#define C_leftIR 53
-#define C_frontIR 22
-#define C_rightIR 23
-#define C_upIR A7
-#define C_armFront A9
-#define C_armLeft 53
-#define C_armRight 23
+#define LEFT_IR 36
+#define C_FRONT_IR 22
+#define RIGHT_IR 40
+#define ARMFRONT_IR 38
+#define ARMLEFT_IR 34
+#define ARMRIGHT_IR A15
+#define UP_IR A7
 
 #define LEFT_ECHO 10
 #define LEFT_TRIGGER 9
 #define RIGHT_ECHO A2
 #define RIGHT_TRIGGER A1
+
+
 
 #define DEBUG_LED_WIFI A8
 
@@ -62,9 +64,8 @@ Servo myservo;
 NewPing leftSonar(LEFT_TRIGGER, LEFT_ECHO, 200);
 NewPing rightSonar(RIGHT_TRIGGER, RIGHT_ECHO, 200);
 
-uint8_t leftIR = 
-uint8_t frontIR = 
-uint8_t rightIR = 
+
+uint8_t FRONT_IR = C_FRONT_IR;
 
 void setupMPU9250()
 {
@@ -79,7 +80,7 @@ void setupMPU9250()
       }
     }
   }
-  imu.setSensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS);
+  imu.setSensors(INV_XYZ_COMPASS);
   imu.setLPF(5);
   imu.setSampleRate(10);
   imu.setCompassSampleRate(10);
@@ -155,10 +156,14 @@ void setup()
     Serial.print("to station err\r\n");
   }
 
-  pinMode(leftIR, INPUT);
-  pinMode(frontIR, INPUT);
-  pinMode(rightIR, INPUT);
-  pinMode(upIR,INPUT);
+  pinMode(LEFT_IR, INPUT);
+  pinMode(C_FRONT_IR, INPUT);
+  pinMode(ARMFRONT_IR, INPUT);
+  pinMode(RIGHT_IR, INPUT);
+  pinMode(ARMLEFT_IR,INPUT);
+  pinMode(ARMRIGHT_IR,INPUT);
+  pinMode(UP_IR,INPUT);
+  
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
   pinMode(IN1, OUTPUT);
@@ -238,7 +243,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Lowering my arm");
     arm_grab();
-    swichIRs();
+    switchIRs();
     break;
   }
 
@@ -246,7 +251,7 @@ void askAndExecute(char *data)
   {
     Serial.println("Bringing my arm up");
     arm_release();
-    swichIRs();
+    switchIRs();
     break;
   }
 
@@ -294,22 +299,22 @@ void askAndExecute(char *data)
   {
     switch (command / 1000)
     {
-    case TURN_LEFT:
-    {
-      float targetAngle = command % 1000;
-      Serial.print("Turning left of: ");
-      Serial.println(targetAngle);
-      turnLeft(targetAngle);
-      break;
-    }
-    case TURN_RIGHT:
-    {
-      float targetAngle = command % 1000;
-      Serial.print("Turning right of: ");
-      Serial.println(targetAngle);
-      turnRight(targetAngle);
-      break;
-    }
+      case TURN_LEFT:
+      {
+        float targetAngle = command % 1000;
+        Serial.print("Turning left of: ");
+        Serial.println(targetAngle);
+        turnLeft(targetAngle);
+        break;
+      }
+      case TURN_RIGHT:
+      {
+        float targetAngle = command % 1000;
+        Serial.print("Turning right of: ");
+        Serial.println(targetAngle);
+        turnRight(targetAngle);
+        break;
+      }
     }
   }
   }
@@ -319,26 +324,33 @@ void askAndExecute(char *data)
 
 void loop()
 {
-  uint8_t leftObstacle = digitalRead(leftIR);
-  uint8_t frontObstacle = digitalRead(frontIR);
-  uint8_t rightObstacle = digitalRead(rightIR);
-  uint8_t upObstacle = digitalRead(upIR);
+  uint8_t leftObstacle = digitalRead(LEFT_IR);
+  uint8_t frontObstacle = digitalRead(FRONT_IR);
+  uint8_t rightObstacle = digitalRead(RIGHT_IR);
+  uint8_t leftArmObstacle = digitalRead(ARMLEFT_IR);
+  uint8_t rightArmObstacle = digitalRead(ARMRIGHT_IR);
+  uint8_t upObstacle = digitalRead(UP_IR);
+  
   float leftDistance = leftSonar.convert_cm(leftSonar.ping_median());
   float rightDistance = rightSonar.convert_cm(rightSonar.ping_median());
-
+  
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["leftObstacle"] = leftObstacle;
   root["frontObstacle"] = frontObstacle;
   root["rightObstacle"] = rightObstacle;
+  root["leftArmObstacle"] = leftArmObstacle;
+  root["rightArmObstacle"] = rightArmObstacle;
   root["upObstacle"] = upObstacle;
+
+
   root["leftDistance"] = leftDistance;
   root["rightDistance"] = rightDistance;
-  
-  
+
   root["degrees"] = getCompassDegrees();
 
   char msg[512];
   root.printTo(msg, sizeof(msg));
+  Serial.println(upObstacle);
   askAndExecute(msg);
 }
