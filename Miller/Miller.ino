@@ -52,8 +52,6 @@
 #define RIGHT_ECHO A2
 #define RIGHT_TRIGGER A1
 
-
-
 #define DEBUG_LED_WIFI A8
 
 #define SERVO 11
@@ -63,7 +61,6 @@ MPU9250_DMP imu;
 Servo myservo;
 NewPing leftSonar(LEFT_TRIGGER, LEFT_ECHO, 200);
 NewPing rightSonar(RIGHT_TRIGGER, RIGHT_ECHO, 200);
-
 
 uint8_t FRONT_IR = C_FRONT_IR;
 
@@ -160,10 +157,10 @@ void setup()
   pinMode(C_FRONT_IR, INPUT);
   pinMode(ARMFRONT_IR, INPUT);
   pinMode(RIGHT_IR, INPUT);
-  pinMode(ARMLEFT_IR,INPUT);
-  pinMode(ARMRIGHT_IR,INPUT);
-  pinMode(UP_IR,INPUT);
-  
+  pinMode(ARMLEFT_IR, INPUT);
+  pinMode(ARMRIGHT_IR, INPUT);
+  pinMode(UP_IR, INPUT);
+
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
   pinMode(IN1, OUTPUT);
@@ -259,6 +256,7 @@ void askAndExecute(char *data)
   {
     moveBackward();
     turnLeft();
+    moveForward();
     break;
   }
 
@@ -266,6 +264,7 @@ void askAndExecute(char *data)
   {
     moveBackward();
     turnRight();
+    moveForward();
     break;
   }
 
@@ -299,22 +298,22 @@ void askAndExecute(char *data)
   {
     switch (command / 1000)
     {
-      case TURN_LEFT:
-      {
-        float targetAngle = command % 1000;
-        Serial.print("Turning left of: ");
-        Serial.println(targetAngle);
-        turnLeft(targetAngle);
-        break;
-      }
-      case TURN_RIGHT:
-      {
-        float targetAngle = command % 1000;
-        Serial.print("Turning right of: ");
-        Serial.println(targetAngle);
-        turnRight(targetAngle);
-        break;
-      }
+    case TURN_LEFT:
+    {
+      float targetAngle = command % 1000;
+      Serial.print("Turning left of: ");
+      Serial.println(targetAngle);
+      turnLeft(targetAngle);
+      break;
+    }
+    case TURN_RIGHT:
+    {
+      float targetAngle = command % 1000;
+      Serial.print("Turning right of: ");
+      Serial.println(targetAngle);
+      turnRight(targetAngle);
+      break;
+    }
     }
   }
   }
@@ -330,10 +329,10 @@ void loop()
   uint8_t leftArmObstacle = digitalRead(ARMLEFT_IR);
   uint8_t rightArmObstacle = digitalRead(ARMRIGHT_IR);
   uint8_t upObstacle = digitalRead(UP_IR);
-  
+
   float leftDistance = leftSonar.convert_cm(leftSonar.ping_median());
   float rightDistance = rightSonar.convert_cm(rightSonar.ping_median());
-  
+
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject &root = jsonBuffer.createObject();
   root["leftObstacle"] = leftObstacle;
@@ -342,7 +341,6 @@ void loop()
   root["leftArmObstacle"] = leftArmObstacle;
   root["rightArmObstacle"] = rightArmObstacle;
   root["upObstacle"] = upObstacle;
-
 
   root["leftDistance"] = leftDistance;
   root["rightDistance"] = rightDistance;
