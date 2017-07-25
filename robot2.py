@@ -199,7 +199,7 @@ try:
                     else:
                         following = False
                 else:
-                    if frontObstacle and (not upObstacle):
+                    if frontObstacle and (not (upObstacle or leftObstacle or rightObstacle)):
                         if following:
                             grabbed = True
                             prev_action = str(constants.GRAB)
