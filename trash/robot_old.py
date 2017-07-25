@@ -22,7 +22,6 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((TCP_IP, TCP_PORT))  # bind socket
 BUFFER_SIZE = 512
-ticker = 0
 
 
 class FramesGrabber(threading.Thread):
@@ -37,15 +36,10 @@ class FramesGrabber(threading.Thread):
             ret = cap.grab()
 
 
-ticker = 0
-
-
 def reactive(leftObstacle, rightObstacle, frontObstacle, somethingAtLeft, somethingAtRight):
-    global ticker
     print "Reactive"
     if not leftObstacle and not rightObstacle and not frontObstacle:
         prev_action = str(constants.FORWARD_FAST)
-        ticker += 1
         conn.send(prev_action)
     elif leftObstacle and rightObstacle:
         if somethingAtRight:
@@ -119,7 +113,6 @@ following = False
 grabbed = False
 prev_action = None
 
-
 frames_grabber.start()
 print "Grabbing frames started"
 s.listen(1)
@@ -154,7 +147,6 @@ try:
         # Compass data
         currentDegrees = input_dictionary['degrees']
         print "Degrees: ", currentDegrees
-        print "Ticker: ", ticker
 
         targetDegrees, targetType, targetColor = states_manager.get_targets()
         print targetDegrees, targetType, targetColor
@@ -180,59 +172,45 @@ try:
                 frame, following, color=targetColor, type_obj=targetType)
 
             # se trovi un target vai al target
-            if targetType == "object":
-                if detector_handler.target is not None:
-                    if not (leftObstacle or frontObstacle or rightObstacle):
-                        following = True
-                        prev_action = str(detector_handler.do_action())
+            if detector_handler.target is not None:
+                if grabbed and frontObstacle:
+                    if shouldRelease(detector_handler.target, frame.shape[1]):
+                        prev_action = str(constants.RELEASE)
                         conn.send(prev_action)
-                        continue
-                    elif frontObstacle and (not upObstacle):
-                        if following:
-                            grabbed = True
-                            prev_action = str(constants.GRAB)
-                            following = False
-                            conn.send(prev_action)
-                            ticker = 0
-                            states_manager.state_transition()
-                            continue
-                    else:
+                        grabbed = False
                         following = False
-                else:
-                    if frontObstacle and (not (upObstacle or leftObstacle or rightObstacle)):
-                        if following:
-                            grabbed = True
-                            prev_action = str(constants.GRAB)
-                            following = False
-                            conn.send(prev_action)
-                            ticker = 0
-                            states_manager.state_transition()
-                            continue
-
-            else:  # se il target e' un'area
-                if detector_handler.target is not None:
-                    if not (leftObstacle or frontObstacle or rightObstacle):
-                        prev_action = str(detector_handler.do_action())
-                        if prev_action == str(constants.FORWARD):
-                            ticker += 1
-                        conn.send(prev_action)
+                        states_manager.state_transition()
                         continue
-                    else:
-                        if frontObstacle and grabbed:
-                            if ticker > 18:
-                                prev_action = str(constants.RELEASE)
-                                ticker = 0
-                                conn.send(prev_action)
-                                states_manager.state_transition()
-                                continue
+
+                # se non ci sono ostacoli
+                if not (leftObstacle or frontObstacle or rightObstacle) and abs(toTurn) < 30:
+                    following = True
+                    prev_action = str(detector_handler.do_action())
+                    conn.send(prev_action)
+                    print "Going to target"
+                    continue
                 else:
-                    if frontObstacle and grabbed:
-                        if ticker > 18:
-                            prev_action = str(constants.RELEASE)
-                            ticker = 0
-                            conn.send(prev_action)
-                            states_manager.state_transition()
-                            continue
+                    following = False
+            else:
+                if targetType == 'object':
+                    if (not upObstacle) and frontObstacle and following:
+                        print "grabbing object"
+                        states_manager.state_transition()
+                        prev_action = str(constants.GRAB)
+                        conn.send(prev_action)
+                        grabbed = True
+                        following = False
+                        continue
+                if targetType == 'area':
+                    if grabbed and following and frontObstacle and (prev_action == str(constants.FORWARD) or prev_action == str(constants.FORWARD_FAST)):
+                        prev_action = str(constants.RELEASE)
+                        conn.send(prev_action)
+                        grabbed = False
+                        following = False
+                        states_manager.state_transition()
+                        continue
+
+            # no proper target found, adjust the orientation
 
             if reorient(somethingAtRight, rightObstacle, somethingAtLeft, leftObstacle, toTurn, 5, 20):
                 continue
